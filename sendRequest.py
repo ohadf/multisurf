@@ -7,3 +7,7 @@ url = sys.argv[1]
 conn = httplib.HTTPConnection(url)
 conn.request("GET", "")
 r1 = conn.getresponse()
+
+res = r1.read()
+
+print res
