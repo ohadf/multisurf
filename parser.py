@@ -8,33 +8,25 @@ class MyHTMLParser(HTMLParser):
         HTMLParser.__init__(self)
         self.results = s
     def handle_starttag(self, tag, attrs):
-        #print "Start tag:", tag
         self.results = self.results + "Start tag: " + tag + "\n"
         for attr in attrs:
-            #print "     attr:", attr
             self.results = self.results + "     attr:" + str(attr) + "\n"
     def handle_endtag(self, tag):
-        #print "End tag  :", tag
         self.results = self.results + "End tag  :" + tag + "\n"
     def handle_data(self, data):
-        #print "Data     :", data
         self.results = self.results + "Data     :" + data + "\n"
     def handle_comment(self, data):
-        #print "Comment  :", data
         self.results = self.results + "Comment  :" + data + "\n"
     def handle_entityref(self, name):
         c = unichr(name2codepoint[name])
-        #print "Named ent:", c
         self.results = self.results + "Named ent:" + c + "\n"
     def handle_charref(self, name):
         if name.startswith('x'):
             c = unichr(int(name[1:], 16))
         else:
             c = unichr(int(name))
-        #print "Num ent  :", c
         self.results = self.results + "Num ent  :" + c + "\n"
     def handle_decl(self, data):
-        #print "Decl     :", data
         self.results = self.results + "Decl     :" + data + "\n"
 
 parse_results = ""
@@ -42,7 +34,7 @@ parser = MyHTMLParser(parse_results)
 
 url1 = sys.argv[1]
 conn1 = httplib.HTTPConnection(url1)
-conn1.request("GET", "/~melara/index.html")
+conn1.request("GET", "")
 r1 = conn1.getresponse()
 
 url2 = sys.argv[2]
