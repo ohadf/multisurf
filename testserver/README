@@ -1,0 +1,7 @@
+In Mac OS X 10.9, the GUI option to start/stop apache was removed. Instead use:
+sudo apachectl start
+sudo apachectl stop
+sudo apachectl restart
+
+Copy website to ~/Sites to make it work.
+

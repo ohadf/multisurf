@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+<h1>Static 1</h1>
+<p>
+Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do
+eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad
+minim veniam, quis nostrud exercitation ullamco laboris nisi ut
+aliquip ex ea commodo consequat. Duis aute irure dolor in
+reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
+pariatur. Excepteur sint occaecat cupidatat non proident, sunt in
+culpa qui officia deserunt mollit anim id est laborum.
+</p>
+
+<h1>Static 2</h1>
+<p>
+Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do
+eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad
+minim veniam, quis nostrud exercitation ullamco laboris nisi ut
+aliquip ex ea commodo consequat. Duis aute irure dolor in
+reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
+pariatur. Excepteur sint occaecat cupidatat non proident, sunt in
+culpa qui officia deserunt mollit anim id est laborum.
+</p>
+
+<h1>Dynamic - show time as a separate paragraph</h1>
+<script type="text/javascript">
+<!--
+	var currentTime = new Date()
+	var hours = currentTime.getHours()
+	var minutes = currentTime.getMinutes()
+	var seconds = currentTime.getSeconds()
+
+	if (seconds < 10)
+	seconds = "0" + seconds
+	
+	if (minutes < 10)
+	minutes = "0" + minutes
+
+	document.write("<p>" + hours + ":" + minutes + ":" + seconds + " " + "</p>")
+//-->
+</script>
+
+<h1>Dynamic - show time in the middle of a paragraph</h1>
+Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do
+eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad
+minim veniam, quis nostrud exercitation ullamco laboris nisi ut
+aliquip ex ea commodo consequat.
+<script type="text/javascript">
+<!--
+	var currentTime = new Date()
+	var hours = currentTime.getHours()
+	var minutes = currentTime.getMinutes()
+	var seconds = currentTime.getSeconds()
+
+	if (seconds < 10)
+	seconds = "0" + seconds
+	
+	if (minutes < 10)
+	minutes = "0" + minutes
+
+	document.write("Current time: " + hours + ":" + minutes + ":" + seconds)
+//-->
+</script>
+Duis aute irure dolor in
+reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
+pariatur. Excepteur sint occaecat cupidatat non proident, sunt in
+culpa qui officia deserunt mollit anim id est laborum.
+
+</body>
+</html>
+
+
