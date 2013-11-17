@@ -2,6 +2,7 @@
 
 import httplib
 import sys
+import HTMLParser
 
 url = sys.argv[1]
 conn = httplib.HTTPConnection(url)
@@ -10,4 +11,4 @@ r1 = conn.getresponse()
 
 res = r1.read()
 
-print res
+
