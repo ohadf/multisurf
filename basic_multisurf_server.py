@@ -9,9 +9,11 @@ context = SSL.Context(SSL.SSLv23_METHOD)
 context.use_privatekey_file('./certs/key-ohad.pem')
 context.use_certificate_file('./certs/cert-ohad.pem')
 
+port = int(sys.argv[1])
+
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s = SSL.Connection(context, s)
-s.bind(('', 12345))
+s.bind(('', port))
 s.listen(5)
 
 print "Listening"
