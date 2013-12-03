@@ -12,7 +12,9 @@ import ssl
 
 def sendRequest(h, p):
 	myConn = httplib.HTTPConnection(h)
-	myConn.request("GET", p)
+	myConn.putrequest("GET", p)
+	myConn.putheader('User-Agent', 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:25.0) Gecko/20100101 Firefox/25.0')
+	h.endheaders()
 	myResp = myConn.getresponse()
 	return myResp.read()
   
