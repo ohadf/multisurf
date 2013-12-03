@@ -29,8 +29,11 @@ class MyHTMLParser(HTMLParser):
     def handle_decl(self, data):
         self.results = self.results + "Decl     :" + data + "\n"
 
-parse_results = ""
-parser = MyHTMLParser(parse_results)
+parse_results1 = ""
+parser1 = MyHTMLParser(parse_results1)
+
+parse_results2 = ""
+parser2 = MyHTMLParser(parse_results2)
 
 url1 = sys.argv[1]
 conn1 = httplib.HTTPConnection(url1)
@@ -45,18 +48,63 @@ r2 = conn2.getresponse()
 respMsg1 = r1.read()
 respMsg2 = r2.read()
 
-#msg1 = respMsg1.splitlines()
-#msg2 = respMsg2.splitlines()
+parser1.feed(respMsg1)
+parse_lines1 = parser1.results.split("\n")
+parser2.feed(respMsg2)
+parse_lines2 = parser2.results.split("\n")
 
-parser.feed(respMsg1)
+if parse_lines1 == parse_lines2:
+    print "EQUAL"
+else:
+    print "NOT EQUAL"
 
-print parser.results
+# things that can be different are in white list.  everything else should be the same
+white_list = []
 
-#for line in range (0, len(msg1)):
-  #  if msg1[line] != msg2[line]:
-    #print "requests did not match at line %d: " % line
-    #print msg1[line]
-      #  print msg2[line]
-        #break
+current_start = ""
 
-#print("finished comparing")
+# requires both requests to have the same number of lines
+for i in range(0, (len(parse_lines1)-1)):
+    if "Start tag" in parse_lines1[i]:
+        n = parse_lines1[i].split(':')[1].strip()
+        current_start = n
+        #print "start" + "     *" + n +"*"
+    if "End tag" in parse_lines1[i]:
+        n = parse_lines1[i].split(':')[1].strip()
+        #print "end" + "     *" + n +"*"
+    if "Data" in parse_lines1[i]:
+        if not current_start in white_list:
+            if parse_lines1[i] != parse_lines2[i]:
+                print "DATA LINES NOT EQUAL"
+                print parse_lines1[i]
+                print parse_lines2[i]
+    if "Comment" in parse_lines1[i]:
+        if not current_start in white_list:
+            if parse_lines1[i] != parse_lines2[i]:
+                print "COMMENT LINES NOT EQUAL"
+                print parse_lines1[i]
+                print parse_lines2[i]
+    if "Decl" in parse_lines1[i]:
+        if not current_start in white_list:
+            if parse_lines1[i] != parse_lines2[i]:
+                print "DECL LINES NOT EQUAL"
+                print parse_lines1[i]
+                print parse_lines2[i]
+    if "Named ent" in parse_lines1[i]:
+        if not current_start in white_list:
+            if parse_lines1[i] != parse_lines2[i]:
+                print "NAMED ENT LINES NOT EQUAL"
+                print parse_lines1[i]
+                print parse_lines2[i]
+    if "Num ent" in parse_lines1[i]:
+        if not current_start in white_list:
+            if parse_lines1[i] != parse_lines2[i]:
+                print "NUM ENT LINES NOT EQUAL"
+                print parse_lines1[i]
+                print parse_lines2[i]
+    if "attr:" in parse_lines1[i]:
+        if not current_start in white_list:
+            if parse_lines1[i] != parse_lines2[i]:
+                print "ATTR LINES NOT EQUAL"
+                print parse_lines1[i]
+                print parse_lines2[i]
