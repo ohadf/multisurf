@@ -20,7 +20,7 @@ myRespBody = myResp.read()
 myRespBodyLen = len(myRespBody)
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-s.connect(('localhost', 12345))
+s.connect(('10.8.14.157', 12345))
 sslSocket = ssl.wrap_socket(s)
 
 urlLen = util.pad_length(len(rawUrl))
