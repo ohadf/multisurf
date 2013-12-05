@@ -5,6 +5,7 @@ import sys
 import util
 import socket
 import ssl
+import parser
 
 # Display info about certs
 #print repr(sslSocket.server())
@@ -104,11 +105,18 @@ myRespBodyArr = myRespBody.splitlines()
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM) 
 sslSocket = None
 
+#to support parser.py
+#respBodies = []
+#respBodies.append(myRespBody)
+
 portnum = 0
 for peer in trustedPeers:
 	# send the request to all my peers
 	respCode = sendPeerReq(peer, ports[portnum], rawUrl)
 	peerRespBody = getPeerResp(respCode)
+
+    #to support parser.py
+    #respBodies.append(peerRespBody)
 
 	if(peerRespBody != None):
 		peerRespBodyArr = processPeerResp(peerRespBody)
@@ -120,5 +128,6 @@ for peer in trustedPeers:
 
 
 	portnum = portnum + 1
-	
-  
+
+#to support parser.py and assumes 2 trusted peers	
+#parser.new_parse_and_compare(respBodies[0], respBodies[1], respBodies[2])  

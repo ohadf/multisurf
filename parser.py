@@ -29,6 +29,8 @@ class MyHTMLParser(HTMLParser):
     def handle_decl(self, data):
         self.results = self.results + "Decl     :" + data + "\n"
 
+# sends a request and parses the html response.
+# returns the results of parsing
 def parse(arg):
     parser = MyHTMLParser("")
     url = sys.argv[arg]
@@ -39,6 +41,13 @@ def parse(arg):
     parser.feed(respMsg)
     return parser.results.split("\n")
 
+# arg should be MyRespBody
+def new_parse(arg):
+    parser = MyHTMLParser("")
+    parser.feed(arg)
+    return parser.results.split("\n")
+
+# checks if the HTTP parsed responses are equal, warning-worthy, or probably malicious
 def check_equality(l1, l2, l3):
     if l1 == l2 == l3:
         print "EQUAL"
@@ -63,8 +72,14 @@ def check_equality(l1, l2, l3):
             print warning_diff_lines
             return [warning_diff_lines]
 
-parse_lines1 = parse(1)
-parse_lines2 = parse(2)
-parse_lines3 = parse(3)
+def parse_and_compare():
+    parse_lines1 = parse(1)
+    parse_lines2 = parse(2)
+    parse_lines3 = parse(3)
+    check_equality(parse_lines1, parse_lines2, parse_lines3)
 
-check_equality(parse_lines1, parse_lines2, parse_lines3)
+def new_parse_and_compare(respBody1, respBody2, respBody3):
+    parse_lines1 = new_parse(respBody1)
+    parse_lines2 = new_parse(respBody2)
+    parse_lines3 = new_parse(respBody3)
+    check_equality(parse_lines1, parse_lines2, parse_lines3)
