@@ -5,7 +5,10 @@
 PREAMBLE_LEN = 7
 PREAMBLE = "GET OMB"
 
+#Lengths in bytes of the length values
 URL_LEN = 10
+USER_AGENT_HDR_LEN = 8
+COOKIE_HDR_LEN = 10
 RESP_BODY_LEN = 15
 
 # Server response codes

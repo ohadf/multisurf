@@ -1,3 +1,5 @@
+#Usage: python basic_multisurf_server.py <port>
+
 import httplib
 import socket
 from OpenSSL import SSL
@@ -15,6 +17,8 @@ s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s = SSL.Connection(context, s)
 s.bind(('', port))
 s.listen(5)
+
+servSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
 print "Listening"
 
@@ -39,12 +43,25 @@ if(urlLen == 0):
 
 reqUrl = connection.recv(urlLen)
 
+'''Receive the user agent header and cookie headers'''
+uahLen = int(connection.recv(util.USER_AGENT_HDR_LEN))
+
+user_agent_hdr = connection.recv(uahLen)
+
+chLen = int(connection.recv(util.COOKIE_HDR_LEN))
+
+cookie_hdr = connection.recv(chLen)
+
 url = util.split_url(reqUrl)
 
 print "Requesting "+reqUrl
 
-conn = httplib.HTTPConnection(url[0])
-conn.request("GET", url[1])
+socketServ.connect(url[0],80)
+
+conn.putrequest("GET", url[1])
+conn.putheader('User-Agent', user_agent_hdr)
+conn.putheader('Cookie', cookie_hdr)
+conn.endheaders()
 resp = conn.getresponse()
 respBody = resp.read()
 
