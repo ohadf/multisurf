@@ -2,3 +2,5 @@ To generate a certificate/key:
 openssl req -new -x509 -days 365 -nodes -out cert.pem -keyout key.pem
 
 Make sure you add the new cert to allcerts! Otherwise peers will not trust it.
+
+Also notice that the supplied "private" keys are on github, thus effectively public. ONLY USE FOR TESTING.
