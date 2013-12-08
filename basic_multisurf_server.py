@@ -43,29 +43,64 @@ if(urlLen == 0):
 
 reqUrl = connection.recv(urlLen)
 
-'''Receive the user agent header and cookie headers'''
-uahLen = int(connection.recv(util.USER_AGENT_HDR_LEN))
+requestLen = int(connection.recv(util.REQ_LEN))
 
-user_agent_hdr = connection.recv(uahLen)
+if(requestLen == 0):
+    print "Nothing to read"
+    connection.send(util.ERR_CODE)
+    s.close()
+    sys.exit()
 
-chLen = int(connection.recv(util.COOKIE_HDR_LEN))
-
-cookie_hdr = connection.recv(chLen)
+request = connection.recv(requestLen)
 
 url = util.split_url(reqUrl)
 
 print "Requesting "+reqUrl
+print "Sending request "+request
 
-socketServ.connect(url[0],80)
+# now actually send the request
+servSocket.connect((url[0],80))
+servSocket.send(request)
 
-conn.putrequest("GET", url[1])
-conn.putheader('User-Agent', user_agent_hdr)
-conn.putheader('Cookie', cookie_hdr)
-conn.endheaders()
-resp = conn.getresponse()
-respBody = resp.read()
+# really inefficient way of reading in all the response headers
+resp_hdrs = ''
+content_len = ''
+while('Connection: close' not in resp_hdrs):
+    resp_hdrs = resp_hdrs+servSocket.recv(1)
+    
+    # get the content length from the header once we've read it in. super inefficient
+    if('Content-Length: ' in resp_hdrs):
+        # this loop will only be called once
+        while('\n' not in content_len):
+            content_len = content_len+servSocket.recv(1)
 
-bodyLen = util.pad_length(len(respBody),True)
+#read in the newline from the last header line and the empty line (\n\r\n)
+# this line is needed so the server really only sends the body of the web page
+servSocket.recv(4)
+
+print resp_hdrs
+# the status is in the first line of the headers, don't care about the other headers
+resp_status = (resp_hdrs.split('\n'))[0]
+
+# currently only handle good responses, can change this to handle other response codes later
+if("HTTP/1.1 200 OK" not in resp_status):
+    print "The web server returned this status: "+resp_status
+    connection.send(util.ERR_CODE)
+    servSocket.close()
+    s.close()
+    sys.exit()
+
+#print content_len
+
+bodyLen = int(content_len.rstrip('\n'))
+
+respBody = servSocket.recv(bodyLen)
+
+#print repr(respBody)
+
+servSocket.close()
+
+bodyLen = util.pad_length(bodyLen,True)
 
 print "Sending back my response"
 connection.send(util.SUCCESS_CODE)
