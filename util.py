@@ -1,6 +1,8 @@
 #Utility constants and functions for multisurf
-#lengths are in bytes
+#define the number of peers
+NUM_PEERS = 3
 
+#lengths are in bytes
 #Protocol constants
 PREAMBLE_LEN = 7
 PREAMBLE = "GET OMB"

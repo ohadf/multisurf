@@ -103,7 +103,7 @@ class MultiSurfClient(object):
 # Protocol starts here
         def main(self):
 
-                if len(sys.argv) < 6:
+                if len(sys.argv) < 2 + util.NUM_PEERS*2:
                         print "Usage: python basic_multisurf_client.py <url> <peer1> <peer1 port> <peer2> <peer2 port>"
                         sys.exit();
                 
@@ -111,14 +111,18 @@ class MultiSurfClient(object):
                 url = util.split_url(rawUrl)
                 host = url[0]
                 path = url[1]
-                
-                trustedPeers = []
-                trustedPeers.append(sys.argv[2])
-                trustedPeers.append(sys.argv[4])
+             
+		trustedPeers = []
+		arg = 2
+		while (arg <= 2*util.NUM_PEERS):
+                             trustedPeers.append(sys.argv[arg])
+			     arg += 2
                 
                 ports = []
-                ports.append(int(sys.argv[3]))
-                ports.append(int(sys.argv[5]))
+		arg = 3
+		while (arg <= 2*util.NUM_PEERS+1):
+                             ports.append(int(sys.argv[arg]))
+			     arg += 2
                 
         # send my request to the server
                 self.myRespBody = self.sendRequest(host,path)
@@ -132,6 +136,8 @@ class MultiSurfClient(object):
                 portnum = 0
                 for peer in trustedPeers:
                 # send the request to all my peers
+			print ports[portnum]
+			print peer
                         respCode = self.sendPeerReq(peer, ports[portnum], rawUrl)
                         peerRespBody = self.getPeerResp(respCode)
 

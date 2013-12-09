@@ -14,6 +14,7 @@ context.use_certificate_file('./certs/cert-ohad.pem')
 port = int(sys.argv[1])
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 s = SSL.Connection(context, s)
 s.bind(('', port))
 s.listen(5)
