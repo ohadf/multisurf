@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+
+<script>
+function setCookie(text)
+{
+	document.cookie = escape(text);
+}
+
+function getCookie()
+{
+	var cookie_text = unescape(document.cookie);
+	return cookie_text;
+}
+
+function getUserName()
+{
+	username = null;
+	while (username == null)
+	{
+		username = prompt("Please enter your name:", "");
+  }
+  return username;
+}
+
+function changeCookie()
+{
+	username = getUserName();
+	setCookie(username);
+}
+
+function checkCookie()
+{
+	var username = getCookie();
+	if (username == null || username == "")
+  {
+  	username = getUserName();
+    setCookie(username);
+  }
+}
+</script>
+</head>
+<body onload="checkCookie()">
+
+Hello there 
+<script>
+document.write(getCookie())
+</script>
+<br> <br>
+
+<button onclick="changeCookie()">Change cookie</button>
+
+</body>
+</html>
