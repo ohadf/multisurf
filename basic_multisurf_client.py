@@ -19,10 +19,10 @@ class MultiSurfClient(object):
                 self.myRespBody = ''
                 self.myRespBodyLen = 0
                 self.myRespBodyArr = []
-		self.isCrawl = crawling
+                self.isCrawl = crawling
 
 	def main(self,url=None,peer=None,port=None):
-
+        print 'in main'
 		if(self.isCrawl):
 			myRespBodyArr = self.doMyRequest(url)
 			return self.doProtocol(peer,port,url,1)
@@ -165,8 +165,11 @@ class MultiSurfClient(object):
 #parser.new_parse_and_compare(respBodies[0], respBodies[1], respBodies[2])  
 	
 def doCrawl(url,peer,port):
+    print 'Enrty point'
     client = MultiSurfClient(True)
+    print 'created client'
     result = client.main(url,peer,port)
+    print 'got result'
     return result
 
 if  __name__ == "__main__":
