@@ -11,15 +11,52 @@ import parser
 
 class MultiSurfClient(object):
         
-        def __init__(self):
-                s = socket.socket(socket.AF_INET, socket.SOCK_STREAM) 
-                sslSocket = None
-                requestLen = 0
-                request = ''
-                myRespBody = ''
-                myRespBodyLen = 0
-                myRespBodyArr = []
-                self.main()
+        def __init__(self, crawling):
+                self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM) 
+                self.sslSocket = None
+                self.requestLen = 0
+                self.request = ''
+                self.myRespBody = ''
+                self.myRespBodyLen = 0
+                self.myRespBodyArr = []
+		self.isCrawl = crawling
+
+	def main(self,url=None,peer=None,port=None):
+
+		if(self.isCrawl):
+			myRespBodyArr = self.doMyRequest(url)
+			return self.doProtocol(peer,port,url,1)
+		else:
+			
+			if len(sys.argv) < 2 + util.NUM_PEERS*2:
+				print "Usage: python basic_multisurf_client.py <url> <peer1> <peer1 port> <peer2> <peer2 port> etc..."
+				return False
+
+			rawUrl = sys.argv[1]
+			
+			trustedPeers = []
+			arg = 2
+			while (arg <= 2*util.NUM_PEERS):
+				trustedPeers.append(sys.argv[arg])
+				arg += 2
+				
+			ports = []
+			arg = 3
+			while (arg <= 2*util.NUM_PEERS+1):
+				ports.append(int(sys.argv[arg]))
+				arg += 2
+                
+		# send my request to the server
+			self.myRespBodyArr = self.doMyRequest(rawUrl)
+                
+#to support parser.py
+#respBodies = []
+#respBodies.append(myRespBody)
+			portnum = 0
+			for peer in trustedPeers:
+				# send the request to all my peers
+				areIdentical = self.doProtocol(peer, ports[portnum], rawUrl,portnum+1)              
+		return None
                 
         def sendRequest(self,h, p):
                 self.request = self.setRequest(p, h) #
@@ -99,62 +136,38 @@ class MultiSurfClient(object):
                 conn_hdr = 'Connection: '+util.conn_hdr+'\n'
                 return req_type+host_hdr+user_agent_hdr+accept_hdr+accept_lang_hdr+cookie_hdr+conn_hdr+'\n'
                                         
-                                        
-# Protocol starts here
-        def main(self):
+	def doMyRequest(self,rawUrl):
+		url = util.split_url(rawUrl)
+		host = url[0]
+		path = url[1]
+		self.myRespBody = self.sendRequest(host,path)
+		self.myRespBodyLen = len(self.myRespBody)
+		return self.myRespBody.splitlines()
 
-                if len(sys.argv) < 2 + util.NUM_PEERS*2:
-                        print "Usage: python basic_multisurf_client.py <url> <peer1> <peer1 port> <peer2> <peer2 port>"
-                        sys.exit();
-                
-                rawUrl = sys.argv[1]
-                url = util.split_url(rawUrl)
-                host = url[0]
-                path = url[1]
-             
-		trustedPeers = []
-		arg = 2
-		while (arg <= 2*util.NUM_PEERS):
-                             trustedPeers.append(sys.argv[arg])
-			     arg += 2
-                
-                ports = []
-		arg = 3
-		while (arg <= 2*util.NUM_PEERS+1):
-                             ports.append(int(sys.argv[arg]))
-			     arg += 2
-                
-        # send my request to the server
-                self.myRespBody = self.sendRequest(host,path)
-                self.myRespBodyLen = len(self.myRespBody)
-                self.myRespBodyArr = self.myRespBody.splitlines()
-                
-#to support parser.py
-#respBodies = []
-#respBodies.append(myRespBody)
-                
-                portnum = 0
-                for peer in trustedPeers:
-                # send the request to all my peers
-			print ports[portnum]
-			print peer
-                        respCode = self.sendPeerReq(peer, ports[portnum], rawUrl)
-                        peerRespBody = self.getPeerResp(respCode)
+# Protocol starts here
+	def doProtocol(self,peer,port,url,peerID):
+		respCode = self.sendPeerReq(peer, port, url)
+		peerRespBody = self.getPeerResp(respCode)
 
     #to support parser.py
     #respBodies.append(peerRespBody)
                 
-                        if(peerRespBody != None):
-                                peerRespBodyArr = self.processPeerResp(peerRespBody)
+		if(peerRespBody != None):
+			peerRespBodyArr = self.processPeerResp(peerRespBody)
                         
-                                if(self.compareByLine(peerRespBodyArr)):
-                                        print "Looks good for peer %d. Both responses are identical." % (portnum+1)
-                        
-                                
-                        portnum = portnum + 1
-
+			areIdentical = self.compareByLine(peerRespBodyArr)
+			if areIdentical:
+				print "Looks good for peer %d. Both responses are identical." % (peerID)
+			return areIdentical
+		return False
+			
 #to support parser.py and assumes 2 trusted peers        
 #parser.new_parse_and_compare(respBodies[0], respBodies[1], respBodies[2])  
+	def doCrawl(self,url,peer,port):
+		client = MultiSurfClient(True)
+		result = client.main(url,peer,port)
+		return result
 
 if  __name__ == "__main__":
-        obj = MultiSurfClient()
+	client = MultiSurfClient(False)
+	client.main()
