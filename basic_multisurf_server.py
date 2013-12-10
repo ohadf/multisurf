@@ -68,13 +68,13 @@ resp_hdrs = ''
 content_len = ''
 while('Connection: close' not in resp_hdrs):
     resp_hdrs = resp_hdrs+servSocket.recv(1)
-    
+
     # get the content length from the header once we've read it in. super inefficient
     if('Content-Length: ' in resp_hdrs):
         # this loop will only be called once
         while('\n' not in content_len):
             content_len = content_len+servSocket.recv(1)
-
+print "****"
 #read in the newline from the last header line and the empty line (\n\r\n)
 # this line is needed so the server really only sends the body of the web page
 servSocket.recv(4)
