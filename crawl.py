@@ -3,6 +3,9 @@ import basic_multisurf_client
 import csv
 import os
 
+# run python basic_multisurf_server.py 12345 in separate shell first
+# then run python crawl.py in a different shell window
+
 def simplecrawl():
     result = basic_multisurf_client.doCrawl('www.google.com', 'localhost', 12345)
 
@@ -13,6 +16,7 @@ def crawl():
         reader = csv.reader(f)
         r = list(reader)
         for item in r:
+            # change to 501 for Alexa 500
             if item[0] == 2:
                 break
             else:
