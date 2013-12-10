@@ -163,10 +163,11 @@ class MultiSurfClient(object):
 			
 #to support parser.py and assumes 2 trusted peers        
 #parser.new_parse_and_compare(respBodies[0], respBodies[1], respBodies[2])  
-	def doCrawl(self,url,peer,port):
-		client = MultiSurfClient(True)
-		result = client.main(url,peer,port)
-		return result
+	
+def doCrawl(url,peer,port):
+    client = MultiSurfClient(True)
+    result = client.main(url,peer,port)
+    return result
 
 if  __name__ == "__main__":
 	client = MultiSurfClient(False)
