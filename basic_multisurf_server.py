@@ -86,7 +86,7 @@ while(1):
 
          # simply read until we reach the very first tag
         # really inefficient way of reading in all the response headers 
-                print resp_hdrs
+                #print resp_hdrs
                 bodyLen = int(content_len.rstrip('\n'))
 
                 respBody = ''
