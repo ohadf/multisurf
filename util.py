@@ -31,7 +31,7 @@ def split_url(url):
         split = url.split('/',1)
         split[1] = '/'+split[1]
     else:
-        split = [url, ""]
+        split = [url, "/"]
     return split
 
 #pad the length of the url up to URL_LEN

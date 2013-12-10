@@ -21,32 +21,27 @@ class MultiSurfClient(object):
         self.myRespBodyArr = []
         self.isCrawl = crawling
 
+
     def main(self,url=None,peer=None,port=None):
-        print 'in main'
         if(self.isCrawl):
-            print 'isCrawl'
             myRespBodyArr = self.doMyRequest(url)
             return self.doProtocol(peer,port,url,1)
         else:
-            print 'else'
             if len(sys.argv) < 2 + util.NUM_PEERS*2:
                 print "Usage: python basic_multisurf_client.py <url> <peer1> <peer1 port> <peer2> <peer2 port> etc..."
                 return False
 
             rawUrl = sys.argv[1]
-            print 'rawUrl'
             trustedPeers = []
             arg = 2
             while (arg <= 2*util.NUM_PEERS):
                 trustedPeers.append(sys.argv[arg])
                 arg += 2
-            print'here1'                    
             ports = []
             arg = 3
             while (arg <= 2*util.NUM_PEERS+1):
                 ports.append(int(sys.argv[arg]))
                 arg += 2
-            print 'here2'    
             # send my request to the server
             self.myRespBodyArr = self.doMyRequest(rawUrl)
                 
@@ -58,7 +53,6 @@ class MultiSurfClient(object):
                 # send the request to all my peers
                 print portnum
                 areIdentical = self.doProtocol(peer, ports[portnum], rawUrl,portnum+1)    
-            print 'here3'          
             return None
                 
     def sendRequest(self,h, p):
@@ -76,27 +70,17 @@ class MultiSurfClient(object):
         return myResp.read()        
         
     def sendPeerReq(self,ip, port, rawUrl):
-        print 'sendPeerReq1'
         self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        print 'sendPeerReq1.1'
         self.s.connect((ip, port))
-        print 'sendPeerReq1.2'
         self.sslSocket = ssl.wrap_socket(self.s)
-        print 'sendPeerReq2'
         urlLen = util.pad_length(len(rawUrl))
                 
         self.sslSocket.send(util.PREAMBLE)
         self.sslSocket.send(urlLen)
-        print urlLen
         self.sslSocket.send(rawUrl)
-        print rawUrl
         self.sslSocket.send(self.requestLen)
-        print self.requestLen
         self.sslSocket.send(self.request)
-        print self.request
-        print 'sendPeerReq3'
         respCode = self.sslSocket.recv(util.RESP_CODE_LEN)
-        print 'sendPeerReq4'
         return respCode
         
     def getPeerResp(self,code):
@@ -133,7 +117,7 @@ class MultiSurfClient(object):
             if self.myRespBodyArr[line] != peerArr[line]:
                 areIdentical = False
                 print "Responses do not match at line %d." % line
-                print "conflict: %r \n %r" % (self.myRespBodyArr[line], peerArr[line])
+                #print "conflict: %r \n %r" % (self.myRespBodyArr[line], peerArr[line])
                 break
         return areIdentical
 
@@ -152,28 +136,27 @@ class MultiSurfClient(object):
         host = url[0]
         path = url[1]
         self.myRespBody = self.sendRequest(host,path)
+        print 'My response'
+        print self.myRespBody
         self.myRespBodyLen = len(self.myRespBody)
         return self.myRespBody.splitlines()
 
 # Protocol starts here
     def doProtocol(self,peer,port,url,peerID):
-        print 'starting protocol'
         respCode = self.sendPeerReq(peer, port, url)
-        print 'still starting protocol'
         peerRespBody = self.getPeerResp(respCode)
-        print 'doProtocol'
+        print peerRespBody
+
     #to support parser.py
     #respBodies.append(peerRespBody)
                 
         if(peerRespBody != None):
-            print 'not none'
             peerRespBodyArr = self.processPeerResp(peerRespBody)
                         
             areIdentical = self.compareByLine(peerRespBodyArr)
             if areIdentical:
                 print "Looks good for peer %d. Both responses are identical." % (peerID)
             return areIdentical
-        print 'false'
         return False
                         
 #to support parser.py and assumes 2 trusted peers        
