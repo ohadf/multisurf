@@ -54,7 +54,7 @@ class MultiSurfClient(object):
                         portnum = 0
                         for peer in trustedPeers:
                                 # send the request to all my peers
-                                areIdentical = self.doProtocol(peer, ports[portnum], rawUrl,portnum+1)              
+                                self.doProtocol(peer, ports[portnum], rawUrl,portnum+1)              
                 return None
                 
         def sendRequest(self,h, p):
@@ -88,10 +88,7 @@ class MultiSurfClient(object):
                 return respCode
 
         def getPeerResp(self,code):
-                if(code == util.ERR_CODE):
-                        print "Some error occurred. Exiting."
-                        return None
-                elif(code == util.SUCCESS_CODE):
+                if(code == util.SUCCESS_CODE):
                         print "Receiving response from trusted peer."
                         
                         bodyLen = int(self.sslSocket.recv(util.RESP_BODY_LEN))
@@ -140,16 +137,20 @@ class MultiSurfClient(object):
                 host = url[0]
                 path = url[1]
                 self.myRespBody = self.sendRequest(host,path)
-                print 'My response'
-                print self.myRespBody
+                #print 'My response'
+                #print self.myRespBody
                 self.myRespBodyLen = len(self.myRespBody)
                 return self.myRespBody.splitlines()
 
 # Protocol starts here
         def doProtocol(self,peer,port,url,peerID):
                 respCode = self.sendPeerReq(peer, port, url)
+                if (respCode == util.ERR_CODE):
+                        print "Peer responded with an error."
+                        return util.PEER_ERR
+
                 peerRespBody = self.getPeerResp(respCode)
-                print peerRespBody
+                #print peerRespBody
 
     #to support parser.py
     #respBodies.append(peerRespBody)
@@ -160,8 +161,10 @@ class MultiSurfClient(object):
                         areIdentical = self.compareByLine(peerRespBodyArr)
                         if areIdentical:
                                 print "Looks good for peer %d. Both responses are identical." % (peerID)
-                        return areIdentical
-                return False
+                                return util.IDENTICAL
+                        
+                        else:
+                                return util.NOT_IDENTICAL_ERR
                         
 #to support parser.py and assumes 2 trusted peers        
 #parser.new_parse_and_compare(respBodies[0], respBodies[1], respBodies[2])  

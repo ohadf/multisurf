@@ -59,33 +59,34 @@ while(1):
         url = util.split_url(reqUrl)
 
         print "Requesting "+reqUrl
-        print "Sending request "+request
+        #print "Sending request "+request
 
         # now actually send the request
         servSocket.connect((url[0],80))
         servSocket.send(request)
 
-        # simply read until we reach the very first tag
-        # really inefficient way of reading in all the response headers 
-        resp_hdrs = ''
+        # read in the response status first and then proceed accordingly
+        resp_status = ''
         content_len = ''
-        while('<' not in resp_hdrs):
-                resp_hdrs = resp_hdrs+servSocket.recv(1)
-    
-        # get the content length from the header once we've read it in. super inefficient
-                if('Content-Length: ' in resp_hdrs):
-        # this loop will only be called once
-                        while('\n' not in content_len):
-                                content_len = content_len+servSocket.recv(1)
+        while('\n' not in resp_status):
+                resp_status = resp_status+servSocket.recv(1)
 
-        print resp_hdrs
 # the status is in the first line of the headers, don't care about the other headers
-        resp_status = (resp_hdrs.split('\n'))[0]
-
-# currently only handle good responses, can change this to handle other response codes later
-        if("200 OK" in resp_status or "40" in resp_status):
+        if("200 OK" in resp_status):
               #print content_len
+                     
+                resp_hdrs = ''
+                while('<' not in resp_hdrs):
+                        resp_hdrs = resp_hdrs+servSocket.recv(1)
+        # get the content length from the header once we've read it in. super inefficient
+                        if('Content-Length: ' in resp_hdrs):
+        # this loop will only be called once
+                                while('\n' not in content_len):
+                                        content_len = content_len+servSocket.recv(1)
 
+         # simply read until we reach the very first tag
+        # really inefficient way of reading in all the response headers 
+                print resp_hdrs
                 bodyLen = int(content_len.rstrip('\n'))
 
                 respBody = ''
@@ -110,4 +111,3 @@ while(1):
                 connection.send(util.ERR_CODE)
                 servSocket.close()
                 s.close()
-                sys.exit()
