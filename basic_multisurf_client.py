@@ -10,7 +10,6 @@ import parser
 #print repr(sslSocket.issuer())
 
 class MultiSurfClient(object):
-        
         def __init__(self, crawling):
                 self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM) 
                 self.sslSocket = None
@@ -87,7 +86,7 @@ class MultiSurfClient(object):
                 
                 respCode = self.sslSocket.recv(util.RESP_CODE_LEN)
                 return respCode
-        
+
         def getPeerResp(self,code):
                 if(code == util.ERR_CODE):
                         print "Some error occurred. Exiting."
@@ -122,7 +121,7 @@ class MultiSurfClient(object):
                         if self.myRespBodyArr[line] != peerArr[line]:
                                 areIdentical = False
                                 print "Responses do not match at line %d." % line
-                                print "conflict: %r \n %r" % (self.myRespBodyArr[line], peerArr[line])
+                                #print "conflict: %r \n %r" % (self.myRespBodyArr[line], peerArr[line])
                                 break
                 return areIdentical
 
@@ -141,6 +140,8 @@ class MultiSurfClient(object):
                 host = url[0]
                 path = url[1]
                 self.myRespBody = self.sendRequest(host,path)
+                print 'My response'
+                print self.myRespBody
                 self.myRespBodyLen = len(self.myRespBody)
                 return self.myRespBody.splitlines()
 
@@ -148,6 +149,7 @@ class MultiSurfClient(object):
         def doProtocol(self,peer,port,url,peerID):
                 respCode = self.sendPeerReq(peer, port, url)
                 peerRespBody = self.getPeerResp(respCode)
+                print peerRespBody
 
     #to support parser.py
     #respBodies.append(peerRespBody)
