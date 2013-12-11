@@ -86,12 +86,58 @@ while(1):
 
          # simply read until we reach the very first tag
         # really inefficient way of reading in all the response headers 
-                #print resp_hdrs
-                bodyLen = int(content_len.rstrip('\n'))
-
+                print resp_hdrs
+                
                 respBody = ''
-                while(len(respBody) < bodyLen-1):
-                              respBody = respBody + servSocket.recv(1)
+                bodyLen = 0
+                # if content length is still '' we know that response is chunked
+                # so find the chunk length before each chunk
+                if(content_len == ''):
+                        # this is for the first chunk
+                        '''
+                        size_str = ''
+                        chunk_size = 65535
+                        
+                        first_chunk = True
+                        resp_hdr_lines = resp_hdrs.splitlines()
+                        size_idx = len(resp_hdr_lines)-2
+                        chunk_size = int(resp_hdr_lines[size_idx].rstrip())
+
+                        while(chunk_size > 0):
+                                if(first_chunk == False):
+                                        while('\n' not in size_str):
+                                                size_str = size_str + servSocket.recv(1)
+                                                print size_str
+                                                chunk_size = int(size_str.rstrip())
+                       
+                        first_chunk = False '''
+                        # give it some number for now
+                        chunk_size = 8000
+                                                
+                        msg = ''
+                        while('</html>' not in msg or '</HTML>' not in msg):
+                                msg = servSocket.recv(chunk_size)
+
+                                if('</html>' in msg or '</HTML>' in msg):
+                                        break
+
+                        # if we see this in our message, we know we've reached the end
+                                # because it turns out that this is read in as part of the last chunk
+                                '''
+                                if('\r\n0\r\n\r\n' in msg):
+                                        msg = msg.rstrip('\r\n0\r\n\r\n')
+                                        respBody = respBody + msg
+                                        break
+                                print repr(msg)    
+                                '''
+                                respBody = respBody + msg
+
+                        bodyLen = len(respBody)+1
+                else:
+                        bodyLen = int(content_len.rstrip('\n'))
+
+                        while(len(respBody) < bodyLen-1):
+                                respBody = respBody + servSocket.recv(1)
 
         #Now add back the '<' from before
                 respBody = '<' + respBody
