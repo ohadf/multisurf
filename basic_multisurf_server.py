@@ -100,7 +100,6 @@ while(1):
               
                 bodyLen = util.pad_length(bodyLen,True)
                 
-                print "Sending back my response"
                 connection.send(util.SUCCESS_CODE)
                 connection.send(bodyLen)
                 connection.send(respBody)
