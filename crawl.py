@@ -17,7 +17,7 @@ def crawl():
         r = list(reader)
         for item in r:
             # change to 501 for Alexa 500
-            if item[0] == 2:
+            if item[0] == '10':
                 break
             else:
                 alexa_sites.append("www."+item[1])
@@ -25,19 +25,25 @@ def crawl():
     safe = 0
     unsafe = 0
     errors = 0
+    print len(alexa_sites)
     for s in alexa_sites:
+        print "starting client for: "+s
         result = basic_multisurf_client.doCrawl(s, 'localhost', 12345)
-        if result == True:
+        print "finishing client for: "+s
+        if result == 2:
+            print s+" : safe"
             safe += 1
-        elif result == False:
+        elif result == 1:
+            print s+" : unsafe"
             unsafe += 1
-        else:
+        else:   
+            print s+" : error"
             errors += 1    
-    return [safe,unsafe,unknown]
+    return [safe,unsafe,errors]
 
 
-simplecrawl()
-#[a,b,c] = crawl()
-#print "The number of sites determined to be safe: "+str(a)
-#print "The number of sites determined to be unsafe (there is a diff): "+str(b)
-#print "The number of sites that gave an error: "+str(c)
+#simplecrawl()
+[a,b,c] = crawl()
+print "The number of sites determined to be safe: "+str(a)
+print "The number of sites determined to be unsafe (there is a diff): "+str(b)
+print "The number of sites that gave an error: "+str(c)
