@@ -2,6 +2,7 @@
 
 import sys
 import re
+import httplib
 
 def longest_matching_slice(a, a0, a1, b, b0, b1):
     sa, sb, n = a0, b0, 0
@@ -46,34 +47,22 @@ def lines(filename):
     with open(filename) as f:
         return [line.rstrip('\n') for line in f.readlines()]
 
-def count_scripts(filename1, filename2):
-    f1 = open(filename1, 'r')
-    f2 = open(filename2, 'r')
+def count_scripts(l1, l2):
     i1 = 0
     i2 = 0
-    for line1 in f1:
+    for line1 in l1:
         if '<script>' in line1:
             i1 += 1
-    for line2 in f2:
+    for line2 in l2:
         if '<script>' in line2:
             i2 += 1
     print "There are "+str(i1)+" script tags in file 1."
     print "There are "+str(i2)+" script tags in file 2."
-    f1.close()
-    f2.close()
 
-def get_diff(filename1, filename2):
-    print_diff(lines(filename1), lines(filename2))
+def get_diff(l1, l2):
+    print_diff(l1, l2)
 
-def line_by_line(filename1, filename2):
-    f1 = open(filename1, 'r')
-    f2 = open(filename2, 'r')
-    l1 = []
-    l2 = []
-    for line1 in f1:
-        l1.append(line1)
-    for line2 in f2:
-        l2.append(line2)
+def line_by_line(l1, l2):
     if l1 == l2:
         print "File 1 is equal to file 2."
     else:
@@ -81,12 +70,35 @@ def line_by_line(filename1, filename2):
             if l1[line] != l2[line]:
                 print "Responses do not match at line %d." % line
                 print "conflict: %r \n %r" % (l1[line], l2[line])
-    f1.close()
-    f2.close()
     
 # TODO
-def compare_dom_tree(filename1, filename2):
-    f1 = open(filename1, 'r')
-    f2 = open(filename2, 'r')
-    f1.close()
-    f2.close()
+def compare_dom_tree(l1, l2):
+    print "implement me"
+
+
+# --------------------------------------- for testing purposes only
+url1 = sys.argv[1]
+conn1 = httplib.HTTPConnection(url1)
+conn1.request("GET", "")
+r1 = conn1.getresponse()
+respMsg1 = r1.read()
+
+url2 = sys.argv[2]
+conn2 = httplib.HTTPConnection(url2)
+conn2.request("GET", "")
+r2 = conn2.getresponse()
+respMsg2 = r2.read()
+
+resp1 = respMsg1.split("\n")
+resp2 = respMsg2.split("\n")
+# --------------------------------------- 
+
+count_scripts(resp1, resp2)
+
+print "*****************************************"
+
+line_by_line(resp1, resp2)
+
+print "*****************************************"
+
+get_diff(resp1, resp2)
