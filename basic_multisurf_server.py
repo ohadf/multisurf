@@ -25,11 +25,11 @@ while(1):
     
     servSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     
-    print "Listening"
+    #print "Listening"
     
     (connection, address) = s.accept()
     
-    print "Connection accepted"
+    #print "Connection accepted"
     
     preamble = connection.recv(util.PREAMBLE_LEN)
     if(preamble != util.PREAMBLE):
@@ -58,8 +58,6 @@ while(1):
 
     request = connection.recv(requestLen)
 
-    print request
-
     headers = peerlib.parseHeaders(request)
     
     # TODO: change this to urlib header dict
@@ -80,7 +78,7 @@ while(1):
         connection.send(util.ERR_CODE)
     else:
         respBody = result
-        print respBody
+        #print respBody
         bodyLen = util.pad_length(len(respBody),True)
                 
         print "Sending back my response"

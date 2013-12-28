@@ -50,9 +50,9 @@ def processRespType(respType,resp,hdrs):
     elif(respType == util.RESP_REDIR_GOOD):
          # redirection so get the location so we can redirect
         newRaw = resp.getheader("Location").strip().split("//")[1]
-        serverResp = peerlib.sendRequest(newRaw,hdrs)
+        serverResp = sendRequest(newRaw,hdrs)
         print "first redirect"
-        respType1 = peerlib.processWebserverResponse(serverResp)
+        respType1 = processWebserverResponse(serverResp)
         if(respType1 == util.RESP_HASBODY):
             return serverResp.read()
         else:

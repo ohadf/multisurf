@@ -21,20 +21,21 @@ class MultiSurfClient(object):
         self.myRespBodyLen = 0
         self.myRespBodyArr = []
         self.isCrawl = crawling
+        self.responseType = -1
 
 
     def main(self,url=None,peer=None,port=None):
         if(self.isCrawl):
             result = self.doMyRequest(url)
             if(result == util.PEER_ERR):
-                return util.PEER_ERR
+                self.responseType = util.PEER_ERR
             elif(result == util.HTTPS_ERR):
-                return util.HTTPS_ERR
+                self.responseType = util.HTTPS_ERR
             else:
                 myRespBody = result
                 self.myRespBodyLen = len(myRespBody)
                 self.myRespBodyArr = myRespBody.splitlines()
-                return self.doProtocol(peer,port,url,1)
+            return self.doProtocol(peer,port,url,1)
         else:
             if(len(sys.argv) < (2 + util.NUM_PEERS*2)):
                 print "Usage: python basic_multisurf_client.py <url> <peer1> <peer1 port> <peer2> <peer2 port> etc..."
@@ -57,7 +58,7 @@ class MultiSurfClient(object):
             if(result == util.PEER_ERR):
                 return util.PEER_ERR
             elif(result == util.HTTPS_ERR):
-                return util.HTTPS_ERR
+                self.responseType = util.HTTPS_ERR
             else:
                 myRespBody = result
                 #print myRespBody
@@ -111,7 +112,7 @@ class MultiSurfClient(object):
                 # Location header was empty
                 return util.RESP_REDIR_NOLOC
         else:
-            print "web server returned this status: %d " % resp.status
+            #print "web server returned this status: %d " % resp.status
             return None
 
     def processRespType(self,respType,resp):
@@ -120,25 +121,22 @@ class MultiSurfClient(object):
         elif(respType == util.RESP_REDIR_HTTPS):
             return respType
         elif(respType == util.RESP_REDIR_NOLOC):
-            print "web server is has no redirection location"
             return respType
         elif(respType == util.RESP_REDIR_GOOD):            
             newRaw = resp.getheader("Location").strip().split("//")[1]
             serverResp = self.sendRequest(newRaw)
-            print "first redirect"
+            #print "first redirect"
             respType1 = self.processWebserverResponse(serverResp)
             if(respType1 == util.RESP_HASBODY):
-                print "redirect resulted in a body"
                 return serverResp.read()
             else:
-                print "web server tried a second redirect"
+                #print "web server tried a second redirect"
                 return respType1
         else:
-            print "web server responded with an unsupported code"
+            #print "web server responded with an unsupported code"
             return None
         
     def sendPeerReq(self,ip, port, rawUrl):
-        print self.request
         self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.s.connect((ip, port))
         self.sslSocket = ssl.wrap_socket(self.s)
@@ -153,7 +151,7 @@ class MultiSurfClient(object):
     
     def getPeerResp(self,code):
         if(code == util.SUCCESS_CODE):
-            print "Receiving response from trusted peer."
+            #print "Receiving response from trusted peer."
             
             bodyLen = int(self.sslSocket.recv(util.RESP_BODY_LEN))
             
@@ -171,9 +169,11 @@ class MultiSurfClient(object):
         peerRespBodyLen = len(resp)
         
         if(self.myRespBodyLen != peerRespBodyLen):
+            '''
             print "Responses are not of the same length."
             print "My response body length: %d" % self.myRespBodyLen
             print "Peer's response body length: %d " % peerRespBodyLen
+            '''
         return resp.splitlines()  
                 
 #Compare both responses up to the end of the shortest response
@@ -182,7 +182,7 @@ class MultiSurfClient(object):
         for line in range (0, min(len(self.myRespBodyArr),len(peerArr))):
             if self.myRespBodyArr[line] != peerArr[line]:
                 areIdentical = False
-                print "Responses do not match at line %d." % line
+                #print "Responses do not match at line %d." % line
                 #print "conflict: %r \n %r" % (self.myRespBodyArr[line], peerArr[line])
                 break
         return areIdentical
@@ -202,10 +202,10 @@ class MultiSurfClient(object):
         result = self.processRespType(respType,serverResp)
 
         if(result == util.RESP_REDIR_HTTPS):
-            print "web server is redirecting to HTTPS"
+            #print "web server is redirecting to HTTPS"
             return util.HTTPS_ERR
         elif(result == None or result == util.RESP_REDIR_NOLOC or result == util.RESP_REDIR_GOOD):
-            print "no good: "+result
+            #print "no good: "+result
             return util.PEER_ERR
         else:
             #print "this should be good: "+result
@@ -215,11 +215,14 @@ class MultiSurfClient(object):
     def doProtocol(self,peer,port,url,peerID):
         respCode = self.sendPeerReq(peer, port, url)
         if (respCode == util.ERR_CODE):
-            print "Peer responded with an error."
+            #print "Peer responded with an error."
             return util.PEER_ERR
         elif(respCode == util.HTTPS_REDIR_CODE):
-            print "Peer trying to redirect to HTTPS"
-            return util.HTTPS_ERR
+            #print "Peer trying to redirect to HTTPS"
+            if(self.responseType == util.HTTPS_ERR):
+                return util.IDENTICAL
+            else:
+                return util.HTTPS_ERR
         
         # respCode should be success code at this point
         peerRespBody = self.getPeerResp(respCode)
@@ -233,7 +236,7 @@ class MultiSurfClient(object):
             
             areIdentical = self.compareByLine(peerRespBodyArr)
             if areIdentical:
-                print "Looks good for peer %d. Both responses are identical." % (peerID)
+                #print "Looks good for peer %d. Both responses are identical." % (peerID)
                 return util.IDENTICAL
             
             else:
@@ -244,11 +247,11 @@ class MultiSurfClient(object):
 #parser.new_parse_and_compare(respBodies[0], respBodies[1], respBodies[2])  
         
 def doCrawl(url,peer,port):
-    print 'Entry point'
+    #print 'Entry point'
     client = MultiSurfClient(True)
-    print 'created client'
+    #print 'created client'
     result = client.main(url,peer,port)
-    print 'got result'
+    #print 'got result'
     return result
 
 if  __name__ == "__main__":

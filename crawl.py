@@ -2,6 +2,7 @@ import sys
 import basic_multisurf_client
 import csv
 import os
+import util
 
 # run python basic_multisurf_server.py 12345 in separate shell first
 # then run python crawl.py in a different shell window
@@ -17,7 +18,7 @@ def crawl():
         r = list(reader)
         for item in r:
             # change to 501 for Alexa 500
-            if item[0] == '10':
+            if item[0] == '16':
                 break
             else:
                 alexa_sites.append("www."+item[1])
@@ -25,25 +26,30 @@ def crawl():
     safe = 0
     unsafe = 0
     errors = 0
+    https = 0
     print len(alexa_sites)
     for s in alexa_sites:
         print "starting client for: "+s
         result = basic_multisurf_client.doCrawl(s, 'localhost', 12345)
         print "finishing client for: "+s
-        if result == 2:
+        if result == util.IDENTICAL:
             print s+" : safe"
             safe += 1
-        elif result == 1:
+        elif result == util.NOT_IDENTICAL_ERR:
             print s+" : unsafe"
             unsafe += 1
+        elif result == util.HTTPS_ERR:
+            print s+": https"
+            https +=1
         else:   
             print s+" : error"
             errors += 1    
-    return [safe,unsafe,errors]
+    return [safe,unsafe,errors,https]
 
 
 #simplecrawl()
-[a,b,c] = crawl()
+[a,b,c,d] = crawl()
 print "The number of sites determined to be safe: "+str(a)
 print "The number of sites determined to be unsafe (there is a diff): "+str(b)
+print "The number of sites determined to be HTTPS: "+str(d)
 print "The number of sites that gave an error: "+str(c)
