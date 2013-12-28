@@ -1,6 +1,7 @@
 import httplib
 import sys
 import util
+import peerlib
 import socket
 import ssl
 import parser
@@ -24,10 +25,18 @@ class MultiSurfClient(object):
 
     def main(self,url=None,peer=None,port=None):
         if(self.isCrawl):
-            myRespBodyArr = self.doMyRequest(url)
-            return self.doProtocol(peer,port,url,1)
+            result = self.doMyRequest(url)
+            if(result == util.PEER_ERR):
+                return util.PEER_ERR
+            elif(result == util.HTTPS_ERR):
+                return util.HTTPS_ERR
+            else:
+                myRespBody = result
+                self.myRespBodyLen = len(myRespBody)
+                self.myRespBodyArr = myRespBody.splitlines()
+                return self.doProtocol(peer,port,url,1)
         else:
-            if len(sys.argv) < 2 + util.NUM_PEERS*2:
+            if(len(sys.argv) < (2 + util.NUM_PEERS*2)):
                 print "Usage: python basic_multisurf_client.py <url> <peer1> <peer1 port> <peer2> <peer2 port> etc..."
                 return False
 
@@ -43,8 +52,18 @@ class MultiSurfClient(object):
                 ports.append(int(sys.argv[arg]))
                 arg += 2
             # send my request to the server
-            self.myRespBodyArr = self.doMyRequest(rawUrl)
+            result = self.doMyRequest(rawUrl)
                 
+            if(result == util.PEER_ERR):
+                return util.PEER_ERR
+            elif(result == util.HTTPS_ERR):
+                return util.HTTPS_ERR
+            else:
+                myRespBody = result
+                #print myRespBody
+                self.myRespBodyLen = len(myRespBody)
+                self.myRespBodyArr = myRespBody.splitlines()
+
 #to support parser.py
 #respBodies = []
 #respBodies.append(myRespBody)
@@ -54,21 +73,72 @@ class MultiSurfClient(object):
                 self.doProtocol(peer, ports[portnum], rawUrl,portnum+1)              
         return None
                 
-    def sendRequest(self,h, p):
-        self.request = self.setRequest(p, h) #
+    def sendRequest(self,rawUrl):
+        url = util.split_url(rawUrl)
+        host = url[0]
+        path = url[1]
+        self.request = self.setHeaders(host) #
         self.requestLen = util.pad_length(len(self.request))
-        myConn = httplib.HTTPConnection(h)
-        myConn.putrequest("GET", p)
+        myConn = httplib.HTTPConnection(host)
+        '''
+        myConn.putrequest("GET", path)
         myConn.putheader('User-Agent', util.user_agent_hdr)
         myConn.putheader('Accept', util.accept_hdr)
         myConn.putheader('Accept-Language', util.accept_lang_hdr)
         myConn.putheader('Cookie', util.cookie_hdr)
         myConn.putheader('Connection', util.conn_hdr)
         myConn.endheaders()
+        '''
+        myConn.request("GET", path, "", peerlib.parseHeaders(self.request))
         myResp = myConn.getresponse()
-        return myResp.read()        
+        return myResp
+
+    def processWebserverResponse(self,resp):
+        print resp.status, resp.reason
+    # see http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html
+        if (resp.status == 200 or "40" in str(resp.status) or "41" in str(resp.status) or 
+            "50" in str(resp.status)):
+            # all of these responses will have a body
+            return util.RESP_HASBODY
+        elif ("30" in str(resp.status)):
+            # it's a redirect, so check if we can get the new location via HTTP
+            newUri = resp.getheader("Location")        
+            if("https://" in newUri):
+                return util.RESP_REDIR_HTTPS
+            elif("http://" in newUri):
+                return util.RESP_REDIR_GOOD
+            else:
+                # Location header was empty
+                return util.RESP_REDIR_NOLOC
+        else:
+            print "web server returned this status: %d " % resp.status
+            return None
+
+    def processRespType(self,respType,resp):
+        if(respType == util.RESP_HASBODY):
+            return resp.read()
+        elif(respType == util.RESP_REDIR_HTTPS):
+            return respType
+        elif(respType == util.RESP_REDIR_NOLOC):
+            print "web server is has no redirection location"
+            return respType
+        elif(respType == util.RESP_REDIR_GOOD):            
+            newRaw = resp.getheader("Location").strip().split("//")[1]
+            serverResp = self.sendRequest(newRaw)
+            print "first redirect"
+            respType1 = self.processWebserverResponse(serverResp)
+            if(respType1 == util.RESP_HASBODY):
+                print "redirect resulted in a body"
+                return serverResp.read()
+            else:
+                print "web server tried a second redirect"
+                return respType1
+        else:
+            print "web server responded with an unsupported code"
+            return None
         
     def sendPeerReq(self,ip, port, rawUrl):
+        print self.request
         self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.s.connect((ip, port))
         self.sslSocket = ssl.wrap_socket(self.s)
@@ -117,25 +187,29 @@ class MultiSurfClient(object):
                 break
         return areIdentical
 
-    def setRequest(self,url, host):
-        req_type = 'GET %s HTTP/1.1\n' % url
+    def setHeaders(self, host):
         host_hdr = 'Host: %s\n' % host
         user_agent_hdr = 'User-Agent: '+util.user_agent_hdr+'\n'
         accept_hdr = 'Accept: '+util.accept_hdr+'\n'
         accept_lang_hdr = 'Accept-Language: '+util.accept_lang_hdr+'\n'
         cookie_hdr = 'Cookie: '+util.cookie_hdr+'\n'
         conn_hdr = 'Connection: '+util.conn_hdr+'\n'
-        return req_type+host_hdr+user_agent_hdr+accept_hdr+accept_lang_hdr+cookie_hdr+conn_hdr+'\n'
+        return host_hdr+user_agent_hdr+accept_hdr+accept_lang_hdr+cookie_hdr+conn_hdr
                                         
     def doMyRequest(self,rawUrl):
-        url = util.split_url(rawUrl)
-        host = url[0]
-        path = url[1]
-        self.myRespBody = self.sendRequest(host,path)
-                #print 'My response'
-                #print self.myRespBody
-        self.myRespBodyLen = len(self.myRespBody)
-        return self.myRespBody.splitlines()
+        serverResp = self.sendRequest(rawUrl)
+        respType = self.processWebserverResponse(serverResp)
+        result = self.processRespType(respType,serverResp)
+
+        if(result == util.RESP_REDIR_HTTPS):
+            print "web server is redirecting to HTTPS"
+            return util.HTTPS_ERR
+        elif(result == None or result == util.RESP_REDIR_NOLOC or result == util.RESP_REDIR_GOOD):
+            print "no good: "+result
+            return util.PEER_ERR
+        else:
+            #print "this should be good: "+result
+            return result
 
 # Protocol starts here
     def doProtocol(self,peer,port,url,peerID):
@@ -143,7 +217,11 @@ class MultiSurfClient(object):
         if (respCode == util.ERR_CODE):
             print "Peer responded with an error."
             return util.PEER_ERR
+        elif(respCode == util.HTTPS_REDIR_CODE):
+            print "Peer trying to redirect to HTTPS"
+            return util.HTTPS_ERR
         
+        # respCode should be success code at this point
         peerRespBody = self.getPeerResp(respCode)
                 #print peerRespBody
 
