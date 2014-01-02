@@ -5,6 +5,7 @@ import peerlib
 import socket
 import ssl
 import parser
+import comparisons
 
 # Display info about certs
 #print repr(sslSocket.server())
@@ -187,6 +188,14 @@ class MultiSurfClient(object):
                 break
         return areIdentical
 
+    def compareDiff(self,peerArr):
+        areIdentical = True
+        if (comparisons.is_diff(self.myRespBodyArr, peerArr)) == True:
+            areIdentical = False
+            f = open('diff_results.txt', 'a')
+            diff = (comparisons.print_diff(self.myRespBodyArr, peerArr))[1]
+        return areIdentical
+
     def setHeaders(self, host):
         host_hdr = 'Host: %s\n' % host
         user_agent_hdr = 'User-Agent: '+util.user_agent_hdr+'\n'
@@ -227,24 +236,18 @@ class MultiSurfClient(object):
         # respCode should be success code at this point
         peerRespBody = self.getPeerResp(respCode)
                 #print peerRespBody
-
-    #to support parser.py
-    #respBodies.append(peerRespBody)
                 
         if(peerRespBody != None):
             peerRespBodyArr = self.processPeerResp(peerRespBody)
             
-            areIdentical = self.compareByLine(peerRespBodyArr)
+            areIdentical = self.compareDiff(peerRespBodyArr)
+            #areIdentical = self.compareByLine(peerRespBodyArr)
             if areIdentical:
                 #print "Looks good for peer %d. Both responses are identical." % (peerID)
                 return util.IDENTICAL
             
             else:
-                return util.NOT_IDENTICAL_ERR
-            
-                        
-#to support parser.py and assumes 2 trusted peers        
-#parser.new_parse_and_compare(respBodies[0], respBodies[1], respBodies[2])  
+                return util.NOT_IDENTICAL_ERR  
         
 def doCrawl(url,peer,port):
     #print 'Entry point'

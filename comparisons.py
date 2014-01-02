@@ -30,18 +30,33 @@ def matching_slices(a, a0, a1, b, b0, b1):
 
 # "-" -> unique to response1, "+" -> unique to response2 
 def print_diff(a, b):
+    diff_lines = []
+    is_diff = False
     ia = ib = 0
     slices = matching_slices(a, 0, len(a), b, 0, len(b))
     slices.append((len(a), len(b), 0))
     for sa, sb, n in slices:
         for line in a[ia:sa]:
-            print "-" + line
+            diff_lines.append("-" + line)
+            is_diff = True
+            #print "-" + line
         for line in b[ib:sb]:
-            print "+" + line
+            diff_lines.append("+" + line)
+            is_diff = True
+            #print "+" + line
         for line in a[sa:sa+n]:
-            print " " + line
+            diff_lines.append(" " + line)
+            #print " " + line
         ia = sa + n
         ib = sb + n
+    if is_diff == True:
+        for line in diff_lines:
+            print line
+    return [is_diff, diff_lines]
+
+def is_diff(a,b):
+    diff = print_diff(a,b)
+    return diff[0]
 
 def lines(filename):
     with open(filename) as f:
@@ -77,28 +92,28 @@ def compare_dom_tree(l1, l2):
 
 
 # --------------------------------------- for testing purposes only
-url1 = sys.argv[1]
-conn1 = httplib.HTTPConnection(url1)
-conn1.request("GET", "")
-r1 = conn1.getresponse()
-respMsg1 = r1.read()
+#url1 = sys.argv[1]
+#conn1 = httplib.HTTPConnection(url1)
+#conn1.request("GET", "")
+#r1 = conn1.getresponse()
+#respMsg1 = r1.read()
 
-url2 = sys.argv[2]
-conn2 = httplib.HTTPConnection(url2)
-conn2.request("GET", "")
-r2 = conn2.getresponse()
-respMsg2 = r2.read()
+#url2 = sys.argv[2]
+#conn2 = httplib.HTTPConnection(url2)
+#conn2.request("GET", "")
+#r2 = conn2.getresponse()
+#respMsg2 = r2.read()
 
-resp1 = respMsg1.split("\n")
-resp2 = respMsg2.split("\n")
+#resp1 = respMsg1.split("\n")
+#resp2 = respMsg2.split("\n")
 # --------------------------------------- 
 
-count_scripts(resp1, resp2)
+#count_scripts(resp1, resp2)
 
-print "*****************************************"
+#print "*****************************************"
 
-line_by_line(resp1, resp2)
+#line_by_line(resp1, resp2)
 
-print "*****************************************"
+#print "*****************************************"
 
-get_diff(resp1, resp2)
+#get_diff(resp1, resp2)
