@@ -1,0 +1,10 @@
+
+{
+  "name": "com.multisurf",
+  "description": "Multisurf Host Application",
+  "path": "multisurf-host.bat",
+  "type": "stdio",
+  "allowed_origins": [
+    "chrome-extension://knldjmfmopnpolahpmmgbagdohdnhkik/"
+  ]
+}

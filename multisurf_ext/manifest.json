@@ -1,0 +1,36 @@
+{
+  "manifest_version": 2,
+
+  "name": "multisurf-ext",
+  "description": "COS-518 final project",
+  "version": "1.0",
+
+	"options_page": "options.html",
+
+  "permissions": [
+  	"storage",
+  	"webRequest",
+    "http://*/*",
+    "https://*/*",    
+    "nativeMessaging",
+    "tabs"
+  ],
+  "browser_action": {
+    "default_icon": {
+      "19": "icon.png"
+    },
+    "default_title": "multisurf",
+    "default_popup": "popup.html"
+  },
+  "background": {
+    "scripts": ["background.js"]
+  },
+  "content_scripts": [
+    {
+      "matches": ["http://*/*", "https://*/*"],
+      "js": ["contentscript.js"],
+      "run_at": "document_end",
+      "all_frames": false
+    }
+  ]
+}
