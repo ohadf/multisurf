@@ -21,42 +21,43 @@ def sendRequest(rawUrl, hdrs):
 
 def processWebserverResponse(resp):
     print resp.status, resp.reason
+    respCode = -1
     # see http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html
     if (resp.status == 200 or "40" in str(resp.status) or "41" in str(resp.status) or 
         "50" in str(resp.status)):
         # all of these responses will have a body
-        return util.RESP_HASBODY
+        respCode =  util.RESP_HASBODY
     elif ("30" in str(resp.status)):
         # it's a redirect, so check if we can get the new location via HTTP
         newUri = resp.getheader("Location")        
         if("https://" in newUri):
-            return util.RESP_REDIR_HTTPS
+            #print "HTTPS-only site"
+            respCode = util.RESP_REDIR_HTTPS
         elif("http://" in newUri):
-           return util.RESP_REDIR_GOOD
+           respCode = util.RESP_REDIR_GOOD
         else:
             # Location header was empty
-            return util.RESP_REDIR_NOLOC
+            respCode = util.RESP_UNSUPP
     else:
-        print "web server returned this status: %d " % resp.status
-        return None
+        #print "web server returned this status: %d " % resp.status
+        respCode = util.RESP_UNSUPP
+    return (respCode,resp.status)
 
 def processRespType(respType,resp,hdrs):
     if(respType == util.RESP_HASBODY):
-        return resp.read()
-    elif(respType == util.RESP_REDIR_HTTPS):
-        return respType
-    elif(respType == util.RESP_REDIR_NOLOC):
-        return respType
+        return (resp.read(),None)
+    elif(respType == util.RESP_REDIR_HTTPS or respType == util.RESP_UNSUPP):
+        return (respType,None)
     elif(respType == util.RESP_REDIR_GOOD):
          # redirection so get the location so we can redirect
         newRaw = resp.getheader("Location").strip().split("//")[1]
         serverResp = sendRequest(newRaw,hdrs)
-        print "first redirect"
-        respType1 = processWebserverResponse(serverResp)
+        #print "first redirect"
+        (respType1,stat) = processWebserverResponse(serverResp)
         if(respType1 == util.RESP_HASBODY):
-            return serverResp.read()
+            return (serverResp.read(),None)
         else:
-            print "server tried a second redirect"
-            return respType1
+            #print "server tried a second redirect"
+            return (respType1,stat)
     else:
         return None
