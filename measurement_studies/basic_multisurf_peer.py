@@ -10,8 +10,8 @@ import peerlib
 import sys
 
 context = SSL.Context(SSL.SSLv23_METHOD)
-context.use_privatekey_file('./certs/key-ohad.pem')
-context.use_certificate_file('./certs/cert-ohad.pem')
+context.use_privatekey_file('../certs/key-ohad.pem')
+context.use_certificate_file('../certs/cert-ohad.pem')
 
 port = int(sys.argv[1])
 
