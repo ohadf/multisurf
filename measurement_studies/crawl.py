@@ -8,7 +8,7 @@ import util
 # then run python crawl.py in a different shell window
 
 def simplecrawl():
-    result = basic_multisurf_client.doCrawl('www.googleusercontent.com', 'localhost', 12345)
+    result = basic_multisurf_client.doCrawl('www.google.com', 'localhost', 12345)
 
 def crawl():
 
@@ -18,7 +18,7 @@ def crawl():
         r = list(reader)
         for item in r:
             # change to 501 for Alexa 500
-            if item[0] == '201':
+            if item[0] == '101':
                 break
             else:
                 alexa_sites.append("www."+item[1])
@@ -56,10 +56,38 @@ def crawl():
 
 
 #simplecrawl()
-[a,b,c,d,e,f] = crawl()
-print "The number of sites determined to be safe: "+str(a)
-print "The number of sites determined to be unsafe (there is a diff): "+str(b)
-print "The number of sites determined to give identical responses but no content to compare: "+str(c)
-print "The number of sites determined to give different responses but no content: "+str(d)
-print "The number of sites determined to be HTTPS-only: "+str(e)
-print "The number of sites that gave an error: "+str(f)
+total_a = 0
+total_b = 0
+total_c = 0
+total_d = 0
+total_e = 0
+total_f = 0
+for i in range(0,1):
+    [a,b,c,d,e,f] = crawl()
+    fi = open(sys.argv[1],'w')
+    fi.write("The number of sites determined to be safe: "+str(a)+"\n")
+    fi.write("The number of sites determined to be unsafe (there is a diff): "+str(b)+"\n")
+    fi.write("The number of sites determined to give identical responses but no content to compare: "+str(c)+"\n")
+    fi.write("The number of sites determined to give different responses but no content: "+str(d)+"\n")
+    fi.write("The number of sites determined to be HTTPS-only: "+str(e)+"\n")
+    fi.write("The number of sites that gave an error: "+str(f)+"\n")
+    fi.write("****************************************************************************************************\n")
+    print "The number of sites determined to be safe: "+str(a)
+    print "The number of sites determined to be unsafe (there is a diff): "+str(b)
+    print "The number of sites determined to give identical responses but no content to compare: "+str(c)
+    print "The number of sites determined to give different responses but no content: "+str(d)
+    print "The number of sites determined to be HTTPS-only: "+str(e)
+    print "The number of sites that gave an error: "+str(f)
+    total_a += a
+    total_b += b
+    total_c += c
+    total_d += d
+    total_e += e
+    total_f += f
+fi.write("The average number of sites determined to be safe: "+str(total_a/50.00)+"\n")
+fi.write("The average number of sites determined to be unsafe (there is a diff): "+str(total_b/50.00)+"\n")
+fi.write("The average number of sites determined to give identical responses but no content to compare: "+str(total_c/50.00)+"\n")
+fi.write("The average number of sites determined to give different responses but no content: "+str(total_d/50.00)+"\n")
+fi.write("The average number of sites determined to be HTTPS-only: "+str(total_e/50.00)+"\n")
+fi.write("The average number of sites that gave an error: "+str(total_f/50.00)+"\n")
+fi.close()

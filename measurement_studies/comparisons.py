@@ -39,19 +39,19 @@ def print_diff(a, b):
         for line in a[ia:sa]:
             diff_lines.append("-" + line)
             is_diff = True
-            #print "-" + line
+            print "-" + line
         for line in b[ib:sb]:
             diff_lines.append("+" + line)
             is_diff = True
-            #print "+" + line
+            print "+" + line
         for line in a[sa:sa+n]:
             diff_lines.append(" " + line)
             #print " " + line
         ia = sa + n
         ib = sb + n
-    if is_diff == True:
-        for line in diff_lines:
-            print line
+    #if is_diff == True:
+    #    for line in diff_lines:
+    #        print line
     return [is_diff, diff_lines]
 
 def is_diff(a,b):
@@ -65,14 +65,14 @@ def lines(filename):
 def count_scripts(l1, l2):
     i1 = 0
     i2 = 0
+    pattern = '<script>'
     for line1 in l1:
-        if '<script>' in line1:
-            i1 += 1
+        n = re.findall(pattern, line1)
+        i1 += len(n)
     for line2 in l2:
-        if '<script>' in line2:
-            i2 += 1
-    print "There are "+str(i1)+" script tags in file 1."
-    print "There are "+str(i2)+" script tags in file 2."
+        n = re.findall(pattern, line2)
+        i2 += len(n)
+    return [i1,i2]
 
 def get_diff(l1, l2):
     print_diff(l1, l2)
@@ -85,10 +85,6 @@ def line_by_line(l1, l2):
             if l1[line] != l2[line]:
                 print "Responses do not match at line %d." % line
                 print "conflict: %r \n %r" % (l1[line], l2[line])
-    
-# TODO
-def compare_dom_tree(l1, l2):
-    print "implement me"
 
 
 # --------------------------------------- for testing purposes only

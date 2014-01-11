@@ -199,10 +199,28 @@ class MultiSurfClient(object):
 
     def compareDiff(self,peerArr):
         areIdentical = True
-        if (comparisons.is_diff(self.myRespBodyArr, peerArr)) == True:
+        #if (comparisons.is_diff(self.myRespBodyArr, peerArr)) == True:
+        #    areIdentical = False
+            #f = open('diff_results.txt', 'a')
+            #diff = (comparisons.print_diff(self.myRespBodyArr, peerArr))[1]
+            #for d in diff:
+            #    if d[0] == '-' or d[0] == '+':
+            #        f.write(d+'\n')
+            #f.close()
+        return areIdentical
+
+    def compareScripts(self,peerArr):
+        areIdentical = True
+        [l1,l2] = comparisons.count_scripts(self.myRespBodyArr, peerArr)
+        #print self.myRespBodyArr
+        #print "*************************************************"
+        #print "*************************************************"
+        #print "*************************************************"
+        #print peerArr
+        if l1 != l2:
             areIdentical = False
-            f = open('diff_results.txt', 'a')
-            diff = (comparisons.print_diff(self.myRespBodyArr, peerArr))[1]
+            print "There are "+str(l1)+" script tags in file 1."
+            print "There are "+str(l2)+" script tags in file 2."
         return areIdentical
 
     def setHeaders(self, host):
@@ -249,7 +267,7 @@ class MultiSurfClient(object):
         if(peerRespBody != None):
             peerRespBodyArr = self.processPeerResp(peerRespBody)
             
-            areIdentical = self.compareDiff(peerRespBodyArr)
+            areIdentical = self.compareScripts(peerRespBodyArr)
             #areIdentical = self.compareByLine(peerRespBodyArr)
             if areIdentical:
                 #print "Looks good for peer %d. Both responses are identical." % (peerID)
