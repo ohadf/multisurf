@@ -6,11 +6,11 @@
 set -e
 
 DIR="$( cd "$( dirname "$0" )" && pwd )"
-if [ $(uname -s) == 'Darwin' ]; then
-  TARGET_DIR='/Library/Google/Chrome/NativeMessagingHosts'
-else
-  TARGET_DIR='/etc/opt/chrome/native-messaging-hosts'
-fi
+#if [ $(uname -s) == 'Darwin' ]; then
+ # TARGET_DIR='/Library/Google/Chrome/NativeMessagingHosts'
+#else
+TARGET_DIR='/etc/opt/chrome/native-messaging-hosts'
+#fi
 
 HOST_NAME=com.multisurf
 

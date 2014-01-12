@@ -9,7 +9,7 @@ import threading
 # Helper function that sends a message to the webapp.
 def send_message(message):
    # Write message size.
-  sys.stdout.write(struct.pack('I', len(message)))
+  sys.stdout.write(str(len(message)))
   # Write the message itself.
   sys.stdout.write(message)
   sys.stdout.flush()
@@ -40,7 +40,7 @@ def set_badge(is_safe):
     send_message('{"badge": "warning"}')
     
 def main():
-  LOG_FILE_PATH = '/Users/ohad/multisurf.log'
+  LOG_FILE_PATH = '/home/marcela/Documents/Uni/MultiSurf/multisurf.log'
   
   send_message('{"info": "Native app is running"}')
   
