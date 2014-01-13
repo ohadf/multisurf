@@ -76,40 +76,30 @@ class MultiSurfClient(object):
      
     '''Comparison helper functions'''
     #Compare both responses up to the end of the shortest response
-    def compareByLine(self,peerArr):
+    def compareByLine(self, peerArr):
         areIdentical = True
-        for line in range (0, min(len(self.myRespBodyArr),len(peerArr))):
-            if self.myRespBodyArr[line] != peerArr[line]:
-                areIdentical = False
-                #print "Responses do not match at line %d." % line
-                #print "conflict: %r \n %r" % (self.myRespBodyArr[line], peerArr[line])
-                break
-        return areIdentical
-
-    def compareDiff(self,peerArr):
-        areIdentical = True
-        #if (comparisons.is_diff(self.myRespBodyArr, peerArr)) == True:
-        #    areIdentical = False
-            #f = open('diff_results.txt', 'a')
-            #diff = (comparisons.print_diff(self.myRespBodyArr, peerArr))[1]
-            #for d in diff:
-            #    if d[0] == '-' or d[0] == '+':
-            #        f.write(d+'\n')
-            #f.close()
+        areIdentical = comparisons.line_by_line(self.myRespBody, peerArr)
         return areIdentical
 
     def compareScripts(self,peerArr):
         areIdentical = True
-        [l1,l2] = comparisons.count_scripts(self.myRespBodyArr, peerArr)
-        #print self.myRespBodyArr
-        #print "*************************************************"
-        #print "*************************************************"
-        #print "*************************************************"
-        #print peerArr
+        [l1,l2] = comparisons.count_scripts(self.myRespBody, peerArr)
         if l1 != l2:
             areIdentical = False
-            #print "There are "+str(l1)+" script tags in file 1."
-            #print "There are "+str(l2)+" script tags in file 2."
+        return areIdentical
+
+    def compareByLinks(self,peerArr):
+        areIdentical = True
+        [l1,l2] = comparisons.compare_links(self.myRespBody, peerArr)
+        if l1 != l2:
+            areIdentical = False
+        return areIdentical
+
+    def compareWithTwoPeers(self,peerArr1,peerArr2):
+        areIdentical = True
+        result = comparisons.compare_with_two_peers(self.myRespBody,peerArr1,peerArr2)
+        if result == 1 or result == 2:
+            areIdentical == False
         return areIdentical
 
     '''Multisurf protocol with peers'''
@@ -162,8 +152,7 @@ class MultiSurfClient(object):
                 f.close()
                 peerRespBodyLines = peerRespBody.splitlines()
                 
-                areIdentical = self.compareScripts(peerRespBodyLines)
-            #areIdentical = self.compareByLine(peerRespBodyLines)
+                areIdentical = self.compareScripts(peerRespBody)
                 if areIdentical:
                     continue           
                 else:

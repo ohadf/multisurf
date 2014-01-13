@@ -31,18 +31,16 @@ class MultiSurfClient(object):
 
     def main(self,url=None,peer=None,port=None):
         if(self.isLatency):
-            print "BASELINE"
             result = self.doMyRequest(url)
             return result
         elif(self.isCrawl):
-            print "OTHER"
             result = self.doMyRequest(url)
             if(result == util.INVALID_URL_ERR or result == util.HTTPS_ERR):
                 return result
             elif(result != util.RESP_UNSUPP):
-                myRespBody = result
-                self.myRespBodyLen = len(myRespBody)
-                self.myRespBodyArr = myRespBody.splitlines()
+                self.myRespBody = result
+                self.myRespBodyLen = len(self.myRespBody)
+                self.myRespBodyArr = self.myRespBody.splitlines()
             return self.doProtocol(peer,port,url,1)
         else:
             if(len(sys.argv) < (2 + util.NUM_PEERS*2)):
@@ -193,37 +191,27 @@ class MultiSurfClient(object):
             print "My response body length: %d" % self.myRespBodyLen
             print "Peer's response body length: %d " % peerRespBodyLen
             '''
-        if self.comp == 2:
-            return resp
-        else:
-            return resp.splitlines()  
+        return resp  
                 
 #Compare both responses up to the end of the shortest response
-    def compareByLine(self,peerArr):
-        areIdentical = True
-        for line in range (0, min(len(self.myRespBodyArr),len(peerArr))):
-            if self.myRespBodyArr[line] != peerArr[line]:
-                areIdentical = False
-                #print "Responses do not match at line %d." % line
-                #print "conflict: %r \n %r" % (self.myRespBodyArr[line], peerArr[line])
-                break
-        return areIdentical
+    #def compareByLine(self,peerArr):
+    #    areIdentical = True
+    #    for line in range (0, min(len(self.myRespBodyArr),len(peerArr))):
+    #       if self.myRespBodyArr[line] != peerArr[line]:
+    #            areIdentical = False
+    #            #print "Responses do not match at line %d." % line
+    #            #print "conflict: %r \n %r" % (self.myRespBodyArr[line], peerArr[line])
+    #            break
+    #   return areIdentical
 
-    def compareDiff(self,peerArr):
+    def compareByLine(self, peerArr):
         areIdentical = True
-        #if (comparisons.is_diff(self.myRespBodyArr, peerArr)) == True:
-        #    areIdentical = False
-            #f = open('diff_results.txt', 'a')
-            #diff = (comparisons.print_diff(self.myRespBodyArr, peerArr))[1]
-            #for d in diff:
-            #    if d[0] == '-' or d[0] == '+':
-            #        f.write(d+'\n')
-            #f.close()
+        areIdentical = comparisons.line_by_line(self.myRespBody, peerArr)
         return areIdentical
 
     def compareScripts(self,peerArr):
         areIdentical = True
-        [l1,l2] = comparisons.count_scripts(self.myRespBodyArr, peerArr)
+        [l1,l2] = comparisons.count_scripts(self.myRespBody, peerArr)
         if l1 != l2:
             areIdentical = False
         return areIdentical

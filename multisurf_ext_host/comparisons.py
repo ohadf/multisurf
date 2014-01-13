@@ -3,6 +3,8 @@
 import sys
 import re
 import httplib
+from bs4 import BeautifulSoup
+import codecs
 
 def longest_matching_slice(a, a0, a1, b, b0, b1):
     sa, sb, n = a0, b0, 0
@@ -63,29 +65,75 @@ def lines(filename):
         return [line.rstrip('\n') for line in f.readlines()]
 
 def count_scripts(l1, l2):
-    i1 = 0
-    i2 = 0
-    pattern = '<script>'
-    for line1 in l1:
-        n = re.findall(pattern, line1)
-        i1 += len(n)
-    for line2 in l2:
-        n = re.findall(pattern, line2)
-        i2 += len(n)
-    return [i1,i2]
+    soup1 = BeautifulSoup(l1)
+    s1 = soup1.find_all('script')
+    soup2 = BeautifulSoup(l2)
+    s2 = soup2.find_all('script')
+    return [len(s1), len(s2)]
 
 def get_diff(l1, l2):
     print_diff(l1, l2)
 
 def line_by_line(l1, l2):
-    if l1 == l2:
-        print "File 1 is equal to file 2."
-    else:
-        for line in range (0, min(len(l1),len(l2))):
-            if l1[line] != l2[line]:
-                print "Responses do not match at line %d." % line
-                print "conflict: %r \n %r" % (l1[line], l2[line])
+    soup1 = BeautifulSoup(l1)
+    soup2 = BeautifulSoup(l2)
+    prettyHTML1 = soup1.prettify()
+    prettyHTML2 = soup2.prettify()
+    f = open('prettyHTML1.txt', 'w')
+    f.write(prettyHTML1.encode('ascii', 'ignore'))
+    f.close()
+    f2 = open('prettyHTML2.txt', 'w')
+    f2.write(prettyHTML2.encode('ascii', 'ignore'))
+    f2.close()
+    
+    f3 = open('prettyHTML1.txt', 'r')
+    data1 = f3.read()
+    f4 = open('prettyHTML2.txt', 'r')
+    data2 = f4.read()
+    for line in range (0, min(len(data1), len(data2))):
+        if data1[line] != data2[line]:
+            return False
+    return True
 
+def compare_links(l1,l2):
+    l1_links = []
+    soup1 = BeautifulSoup(l1)
+    for link in soup1.find_all('a'):
+        l1_links.append(link.get('href'))
+    for link2 in soup1.find_all('img'):
+        l1_links.append(link2.get('src'))
+
+    l2_links = []
+    soup2 = BeautifulSoup(l2)
+    for link3 in soup2.find_all('a'):
+        l2_links.append(link3.get('href'))
+    for link4 in soup2.find_all('img'):
+        l2_links.append(link4.get('src'))
+    return [set(l1_links), set(l2_links)]
+
+def compare_with_two_peers(l1,l2,l3):
+    c1 = line_by_line(l1,l2)
+    c2 = line_by_line(l1,l3)
+    c3 = line_by_line(l2,l3)
+    if (c1 and c2 and c3):
+        return True
+    elif (not c1) and c3:
+        return False
+    elif (not c2) and c3:
+        return False
+    elif (not c1) and (not c2) and (not c3):
+        return True
+    else:
+        return False
+
+def multiple_comparisons(l1,l2):
+    [s1,s2] = count_scripts(l1,l2)
+    x = line_by_line(l1,l2)
+    [c1,c2] = compare_links(l1,l2)
+    if ((s1 == s2) and (x) and (c1 == c2)):
+        return True
+    else:
+        return False
 
 # --------------------------------------- for testing purposes only
 #url1 = sys.argv[1]

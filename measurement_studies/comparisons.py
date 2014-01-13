@@ -4,6 +4,7 @@ import sys
 import re
 import httplib
 from bs4 import BeautifulSoup
+import codecs
 
 def longest_matching_slice(a, a0, a1, b, b0, b1):
     sa, sb, n = a0, b0, 0
@@ -66,11 +67,8 @@ def lines(filename):
 def count_scripts(l1, l2):
     soup1 = BeautifulSoup(l1)
     s1 = soup1.find_all('script')
-    print len(s1)
-
     soup2 = BeautifulSoup(l2)
     s2 = soup2.find_all('script')
-    print len(s2)
     return [len(s1), len(s2)]
 
 def get_diff(l1, l2):
@@ -82,10 +80,10 @@ def line_by_line(l1, l2):
     prettyHTML1 = soup1.prettify()
     prettyHTML2 = soup2.prettify()
     f = open('prettyHTML1.txt', 'w')
-    f.write(prettyHTML1)
+    f.write(prettyHTML1.encode('ascii', 'ignore'))
     f.close()
     f2 = open('prettyHTML2.txt', 'w')
-    f2.write(prettyHTML2)
+    f2.write(prettyHTML2.encode('ascii', 'ignore'))
     f2.close()
     
     f3 = open('prettyHTML1.txt', 'r')
@@ -102,19 +100,15 @@ def compare_links(l1,l2):
     soup1 = BeautifulSoup(l1)
     for link in soup1.find_all('a'):
         l1_links.append(link.get('href'))
-        print(link.get('href'))
     for link2 in soup1.find_all('img'):
         l1_links.append(link2.get('src'))
-        print(link2.get('src'))
 
     l2_links = []
     soup2 = BeautifulSoup(l2)
     for link3 in soup2.find_all('a'):
         l2_links.append(link3.get('href'))
-        print(link3.get('href'))
     for link4 in soup2.find_all('img'):
         l2_links.append(link4.get('src'))
-        print(link4.get('src'))
     return [set(l1_links), set(l2_links)]
 
 def compare_with_two_peers(l1,l2,l3):
@@ -153,17 +147,23 @@ def multiple_comparisons(l1,l2):
 
 
 # --------------------------------------- for testing purposes only
-#url1 = sys.argv[1]
-#conn1 = httplib.HTTPConnection(url1)
-#conn1.request("GET", "")
-#r1 = conn1.getresponse()
-#respMsg1 = r1.read()
+url1 = sys.argv[1]
+conn1 = httplib.HTTPConnection(url1)
+conn1.request("GET", "")
+r1 = conn1.getresponse()
+respMsg1 = r1.read()
 
-#url2 = sys.argv[2]
-#conn2 = httplib.HTTPConnection(url2)
-#conn2.request("GET", "")
-#r2 = conn2.getresponse()
-#respMsg2 = r2.read()
+url2 = sys.argv[2]
+conn2 = httplib.HTTPConnection(url2)
+conn2.request("GET", "")
+r2 = conn2.getresponse()
+respMsg2 = r2.read()
+
+url3 = sys.argv[3]
+conn3 = httplib.HTTPConnection(url3)
+conn3.request("GET", "")
+r3 = conn3.getresponse()
+respMsg3 = r3.read()
 
 #resp1 = respMsg1.split("\n")
 #resp2 = respMsg2.split("\n")
@@ -185,3 +185,7 @@ def multiple_comparisons(l1,l2):
 #print "******************************************"
 
 #compare_links(respMsg1,respMsg2)
+
+#compare_with_two_peers(respMsg1,respMsg2,respMsg3)
+
+#multiple_comparisons(respMsg1,respMsg2)

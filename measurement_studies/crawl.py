@@ -10,7 +10,7 @@ from random import randrange
 # then run python crawl.py in a different shell window
 
 def simplecrawl():
-    result = basic_multisurf_client.doCrawl('www.google.com', 'localhost', 12345)
+    result = basic_multisurf_client.doCrawl('www.google.com', 'localhost', 12345, 3)
 
 def crawl():
 
@@ -36,7 +36,7 @@ def crawl():
         if s != "www.hao123.com" or s != "www.sohu.com":
             print "starting client for: "+s
             # 0 - number of scripts; 1 - line by line; 2 - links; 3 - two peers; 4 - combination of comparisons;
-            result = basic_multisurf_client.doCrawl(s, 'localhost', 12345, 2)
+            result = basic_multisurf_client.doCrawl(s, 'localhost', 12345, 3)
             print "finishing client for: "+s
             if result == util.SAFE:
                 print s+" : safe"
@@ -58,13 +58,14 @@ def crawl():
                 errors +=1 
     return [safe,unsafe,identical_resp,diff_resp,https,errors]
 
+simplecrawl()
 total_a = 0
 total_b = 0
 total_c = 0
 total_d = 0
 total_e = 0
 total_f = 0
-[a,b,c,d,e,f] = crawl()
+#[a,b,c,d,e,f] = crawl()
 fi = open(sys.argv[1],'w')
 fi.write("The number of sites determined to be safe: "+str(a)+"\n")
 fi.write("The number of sites determined to be unsafe (there is a diff): "+str(b)+"\n")
