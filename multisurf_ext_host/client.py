@@ -115,6 +115,7 @@ class MultiSurfClient(object):
     '''Multisurf protocol with peers'''
     def doProtocol(self,url):
         PEER_FILE_PATH = '/etc/opt/chrome/native-messaging-hosts/peers.txt'
+        self.peerRespBodyArr = [] # reset this every time we start the protocol
 
         rawUrl = util.get_raw(url)
         self.url = rawUrl
@@ -155,7 +156,7 @@ class MultiSurfClient(object):
         for peerRespBody in self.peerRespBodyArr:
             if(peerRespBody != None):
 
-                path = '/home/marcela/Desktop/peer-'+str(i)+'.txt'            
+                path = '/tmp/peer-'+str(i)+'-'+self.url+'.txt'            
                 f = open(path, 'w')
                 i = i +1        
                 f.write(peerRespBody)
