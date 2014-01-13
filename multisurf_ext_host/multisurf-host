@@ -38,18 +38,26 @@ def read_loop(f,cl):
 
     msg = obj['content']
     if(obj['msgtype'] == 'content'):
-      send_message('{"info": "got here"}')
-      reqUrl = msg['url']
+      reqUrl = util.get_raw(msg['url'])
       body = msg['pagecontent']
 
       if(reqUrl == cl.getCurUrl()):
+        #g = open('/home/marcela/Desktop/client.txt', 'w')
+        #g.write(body)
+        #g.close()
+
         cl.setMyRespBody(body)
+
+        send_message('{"info": "working on checking the requested site"}')
+
         result = cl.doComparison()
 
-        if(result == util.SAFE):
+        if(result == util.SAFE or result == util.IDENTICAL_RESP):
           set_badge(1)
+          send_message('{"info": "safe"}')
         else:
           set_badge(0)
+          send_message('{"info": "unsafe"}')
       else:
         set_badge(0)
 
@@ -57,25 +65,39 @@ def read_loop(f,cl):
       reqUrl = msg['url']
       reqHeaders = msg['requestHeaders']
 
-      cl.parseReqHeaders(reqHeaders)
-
-      send_message('{"info": "sending request to peer(s)"}')
-
-      result = cl.doProtocol(reqUrl)
-      
-      send_message('{"info": "right here"}')
-
-      if(result == util.COMM_ERR or result == util.HTTPS_ERR):
-        set_badge(0)
+      if('https://' in reqUrl):
+        set_badge(2)
       else:
-        send_message('{"info": "got response from peer(s)"}')
+        cl.parseReqHeaders(reqHeaders)
+
+        send_message('{"info": "sending request to peer(s)"}')
+
+        result = cl.doProtocol(reqUrl)
+
+        if(result == util.COMM_ERR or result == util.DIFF_RESP_ERR):
+          send_message('{"info": "some error occurred"}')
+          set_badge(0)
+        else:
+          send_message('{"info": "got response from peer(s)"}')
+
+    elif(obj['msgtype'] == 'status'):
+      reqUrl = util.get_raw(msg['url'])
+      status_code = int(msg['statusCode'])
+
+      if(reqUrl == cl.getCurUrl()):
+        cl.setMyStatusCode(status_code)
+      else:
+        send_message('{"info": "'+reqUrl+'   '+cl.getCurUrl()+'"}')
+        set_badge(0)
 
     # Write text to log
     f.write(text + '\n')
 
 def set_badge(is_safe):
-  if is_safe:
+  if (is_safe == 1):
     send_message('{"badge": "safe"}')
+  elif(is_safe == 2):
+    send_message('{"badge": "https"}')
   else:
     send_message('{"badge": "warning"}')
     

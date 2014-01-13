@@ -36,6 +36,9 @@ class MultiSurfClient(object):
         self.myRespBody = resp_body
         self.myRespBodyArr = resp_body.splitlines()
 
+    def setMyStatusCode(self, status):
+        self.myRespStatus = status
+
     def getCurUrl(self):
         return self.url
         
@@ -142,30 +145,36 @@ class MultiSurfClient(object):
             if(peerRespBody != None):
                 self.peerRespBodyArr.append(peerRespBody)
             else:
-                # TODO: get the server status from the browser and do a basic comparison as with the
-                # basic client
-                return util.COMM_ERR
+                self.peerRespBodyArr.append(None)
 
         return util.GOT_BODY
 
     '''Response body comparison'''
     def doComparison(self):
+        i = 0
         for peerRespBody in self.peerRespBodyArr:
-            peerRespBodyLines = peerRespBody.splitlines()
-        
-            #areIdentical = self.compareScripts(peerRespBodyLines)
-            areIdentical = self.compareByLine(peerRespBodyArr)
-            if areIdentical:
-                continue           
-            else:
-                return util.UNSAFE
-        return util.SAFE
+            if(peerRespBody != None):
 
-        '''
-        else:
-            if(self.myRespStatus != self.peerStatus):
-                print "peer got different response. peer status: %d" % self.peerStatus
-                return util.DIFF_RESP_ERR
-            else:
-                print "peer got identical response. peer status: %d" % self.peerStatus
-                return util.IDENTICAL_RESP'''
+                path = '/home/marcela/Desktop/peer-'+str(i)+'.txt'            
+                f = open(path, 'w')
+                i = i +1        
+                f.write(peerRespBody)
+                f.close()
+                peerRespBodyLines = peerRespBody.splitlines()
+                
+                areIdentical = self.compareScripts(peerRespBodyLines)
+            #areIdentical = self.compareByLine(peerRespBodyLines)
+                if areIdentical:
+                    continue           
+                else:
+                    return util.UNSAFE
+            else:      
+                if(self.myRespStatus != self.peerStatus):
+                    #print "peer got different response. peer status: %d" % self.peerStatus
+                    return util.DIFF_RESP_ERR
+                else:
+                    #print "peer got identical response. peer status: %d" % self.peerStatus
+                    continue
+
+        # should only get here is all peer response bodies were safe
+        return util.SAFE

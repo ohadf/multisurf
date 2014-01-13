@@ -1,4 +1,4 @@
-#Utility constants and functions for multisurf
+#Utility constants and functions for multisurf client
 #define the number of peers
 NUM_PEERS = 1
 
@@ -35,13 +35,6 @@ RESP_HASBODY = 10
 RESP_REDIR_HTTPS = 11
 RESP_REDIR_GOOD = 12
 RESP_UNSUPP = 13
-
-# headers for version 0 HTTP requests
-user_agent_hdr = 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:25.0) Gecko/20100101 Firefox/25.0'
-accept_hdr = 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'
-accept_lang_hdr = 'en-US,en;q=0.5'
-cookie_hdr =  'Marcela'
-conn_hdr = 'keep-alive'
 
 #split a url into its host and path portions
 def split_url(url):

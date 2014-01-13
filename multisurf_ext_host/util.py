@@ -1,6 +1,6 @@
 #Utility constants and functions for multisurf
 #define the number of peers
-NUM_PEERS = 1
+NUM_PEERS = 2
 
 #lengths are in bytes
 #Protocol constants

@@ -2,6 +2,13 @@ import httplib
 import util
 import collections
 
+def stripDoctype(body):
+    if(len(body) > 0):
+        split = body.split('\n',1)
+        return split[1]
+    else:
+        return body
+
 def parseHeaders(request):
     headers = collections.OrderedDict()
     for line in request.splitlines():

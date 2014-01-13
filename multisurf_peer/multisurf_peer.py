@@ -25,7 +25,7 @@ while(1):
     
     servSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     
-    #print "Listening"
+    print "Listening"
     
     (connection, address) = s.accept()
     
@@ -73,17 +73,18 @@ while(1):
     (result,status1) = peerlib.processRespType(respType,resp,headers)
 
     if(result == util.RESP_REDIR_HTTPS):
+        print "https redirect"
         connection.send(util.HTTPS_REDIR_CODE)
     elif(result == util.RESP_UNSUPP or result == util.RESP_REDIR_GOOD):
         connection.send(util.UNSUPP_CODE)
         if(result == util.RESP_UNSUPP):
-            #print "got here unsupp: %d " % status
+            print "got here unsupp: %d " % status
             connection.send(str(status))
         else:
-            #print "got here: %d " % status1
+            print "got here: %d " % status1
             connection.send(str(status1))
     else:
-        respBody = result
+        respBody = peerlib.stripDoctype(result)
         #print respBody
         bodyLen = util.pad_length(len(respBody),True)
         #print bodyLen

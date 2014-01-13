@@ -20,6 +20,9 @@ mkdir -p $TARGET_DIR
 # Copy native messaging host manifest.
 cp $DIR/$HOST_NAME.json $TARGET_DIR
 
+# make the empty peers file
+cat > $TARGET_DIR/peers.txt
+
 # Update host path in the manifest.
 HOST_PATH=$DIR/multisurf-host
 ESCAPED_HOST_PATH=${HOST_PATH////\\/}

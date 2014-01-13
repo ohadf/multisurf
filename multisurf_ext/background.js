@@ -17,63 +17,58 @@ chrome.runtime.onMessage.addListener(
   function(request, sender, sendResponse) {
     // If this is a message from a content script, pass it along to the native application
     if (sender.tab) {
-      contents = {'url': sender.tab.url, 'pagecontent': request.pagecontent};
-      message = {'msgtype': 'content',
-                 'content': contents};
-      sendNativeMessage(message);
+        if(sender.tab.url.indexOf("https://") == -1){
+            contents = {'url': sender.tab.url, 'pagecontent': request.pagecontent};
+            message = {'msgtype': 'content',
+                       'content': contents};
+            sendNativeMessage(message);
+        }
+        else{
+            console.log("wth?");
+            setBadge("https");
+        }
     }
   });
 
 // Whenever we send a request, pipe it to the application
 chrome.webRequest.onSendHeaders.addListener(
-  function(details) {    
-    if (verbose) {
-      // Send all request parameters and headers to the native application
-      sendNativeMessage(details);
-    } else {
-      // Only process GET requests for main_frames
-      if ((details.method === 'GET') && (details.type === 'main_frame')) {
-        var short_details = {
-          //'requestId': details.requestId, 
-          'url': details.url,
-          //'method': details.method,
-          //'type': details.type,
-          'requestHeaders': details.requestHeaders
-        };
-        message = {'msgtype': 'request',
-                    'content': short_details};
-        sendNativeMessage(message);
-      }
-    }
-  },
-  {urls: ["<all_urls>"]},
-  ["requestHeaders"]);
+    function(details) {    
+        // Only process GET requests for main_frames
+        if ((details.method === 'GET') && (details.type === 'main_frame')) {
+            if(details.url.indexOf("https://") == -1){
+                var short_details = {
+                    'url': details.url,           
+                    'requestHeaders': details.requestHeaders
+                };
+                message = {'msgtype': 'request',
+                           'content': short_details};
+                sendNativeMessage(message);
+            }
+        }
+    },
+    {urls: ["<all_urls>"]},
+    ["requestHeaders"]);
  
 // Whenever we complete a request, pipe it to the application
-/*
-chrome.webRequest.onCompleted.addListener(
-  function(details) {    
-    if (verbose) {
-      // Send all request parameters and headers to the native application
-      sendNativeMessage(details);
-    } else {
-      // Only process GET requests for main_frames
-      if ((details.method === 'GET') && (details.type === 'main_frame')) {
-        var short_details = {
-          'requestId': details.requestId, 
-          'url': details.url,
-          'method': details.method,
-          'type': details.type,
-          'responseHeaders': details.responseHeaders
-        };
-        sendNativeMessage(short_details);
-      }
-    }
-  },
-  {urls: ["<all_urls>"]},
-  ["responseHeaders"]);
-  */
 
+chrome.webRequest.onCompleted.addListener(
+    function(details) {
+        // Only process GET requests for main_frames
+        if ((details.method === 'GET') && (details.type === 'main_frame')) {
+            if(details.url.indexOf("https://") == -1){
+                var short_details = {
+                    'statusCode': details.statusCode,        
+                    'url': details.url       
+                };
+                message = {'msgtype': 'status',
+                           'content': short_details};
+                sendNativeMessage(message);
+            }
+        }
+    },
+    {urls: ["<all_urls>"]},
+    ["responseHeaders"]);
+    
 // Connect to the native application
 function connect() {
   var hostName = "com.multisurf";
@@ -90,7 +85,7 @@ function sendNativeMessage(message) {
   }
     
   port.postMessage(message);
-  console.log('Sent message: ' + JSON.stringify(message));
+  //console.log('Sent message: ' + JSON.stringify(message));
 }
 
 // Receive message from native application
@@ -99,7 +94,7 @@ function onNativeMessage(message) {
   
   // If this is a badge message, change badge state
   if (message.hasOwnProperty('badge')) {
-    setBadge(message.badge === 'safe')
+    setBadge(message.badge)
   }
 }
 
@@ -110,11 +105,22 @@ function onDisconnected() {
 
 // Change badge text and color
 function setBadge(safeState) {
-  if (safeState) {
-    chrome.browserAction.setBadgeText({"text": localStorage["safe_string"]});
-    chrome.browserAction.setBadgeBackgroundColor({color: [0, 255, 0, 255]});
-  } else {
-    chrome.browserAction.setBadgeText({"text": localStorage["warning_string"]});
-    chrome.browserAction.setBadgeBackgroundColor({color: [255, 0, 0, 255]});  
-  }
+    if (safeState == "safe") {
+        chrome.browserAction.setBadgeText({"text": localStorage["safe_string"]});
+        chrome.browserAction.setBadgeBackgroundColor({color: [0, 255, 0, 255]});
+    } 
+    else if(safeState == "https"){
+        chrome.browserAction.setBadgeText({"text": "lock"});
+        chrome.browserAction.setBadgeBackgroundColor({color: [0, 255, 0, 255]});
+    }
+    else {
+        chrome.browserAction.setBadgeText({"text": localStorage["warning_string"]});
+        chrome.browserAction.setBadgeBackgroundColor({color: [255, 0, 0, 255]});  
+    }
+}
+
+// Reset badge to nothing
+function resetBadge(){
+    chrome.browserAction.setBadgeText({"text": ""});
+    chrome.browserAction.setBadgeBackgroundColor();
 }
