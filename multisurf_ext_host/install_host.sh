@@ -21,7 +21,7 @@ mkdir -p $TARGET_DIR
 cp $DIR/$HOST_NAME.json $TARGET_DIR
 
 # make the empty peers file
-cat > $TARGET_DIR/peers.txt
+cp $DIR/peers.txt $TARGET_DIR
 
 # Update host path in the manifest.
 HOST_PATH=$DIR/multisurf-host
