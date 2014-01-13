@@ -11,9 +11,11 @@ import comparisons
 #print repr(sslSocket.server())
 #print repr(sslSocket.issuer())
 
+#modify line 272 to change comparison technique
+
 class MultiSurfClient(object):
         
-    def __init__(self, crawling):
+    def __init__(self, crawling, testingLatency, comparison):
         self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM) 
         self.sslSocket = None
         self.requestLen = 0
@@ -24,9 +26,16 @@ class MultiSurfClient(object):
         self.isCrawl = crawling
         self.myRespStatus = -1
         self.peerStatus = -1
+        self.isLatency = testingLatency
+        self.comp = comparison
 
     def main(self,url=None,peer=None,port=None):
-        if(self.isCrawl):
+        if(self.isLatency):
+            print "BASELINE"
+            result = self.doMyRequest(url)
+            return result
+        elif(self.isCrawl):
+            print "OTHER"
             result = self.doMyRequest(url)
             if(result == util.INVALID_URL_ERR or result == util.HTTPS_ERR):
                 return result
@@ -184,7 +193,10 @@ class MultiSurfClient(object):
             print "My response body length: %d" % self.myRespBodyLen
             print "Peer's response body length: %d " % peerRespBodyLen
             '''
-        return resp.splitlines()  
+        if self.comp == 2:
+            return resp
+        else:
+            return resp.splitlines()  
                 
 #Compare both responses up to the end of the shortest response
     def compareByLine(self,peerArr):
@@ -212,15 +224,22 @@ class MultiSurfClient(object):
     def compareScripts(self,peerArr):
         areIdentical = True
         [l1,l2] = comparisons.count_scripts(self.myRespBodyArr, peerArr)
-        #print self.myRespBodyArr
-        #print "*************************************************"
-        #print "*************************************************"
-        #print "*************************************************"
-        #print peerArr
         if l1 != l2:
             areIdentical = False
-            print "There are "+str(l1)+" script tags in file 1."
-            print "There are "+str(l2)+" script tags in file 2."
+        return areIdentical
+
+    def compareByLinks(self,peerArr):
+        areIdentical = True
+        [l1,l2] = comparisons.compare_links(self.myRespBody, peerArr)
+        if l1 != l2:
+            areIdentical = False
+        return areIdentical
+
+    def compareWithTwoPeers(self,peerArr1,peerArr2):
+        areIdentical = True
+        result = comparisons.compare_with_two_peers(self.myRespBody,peerArr1,peerArr2)
+        if result == 1 or result == 2:
+            areIdentical == False
         return areIdentical
 
     def setHeaders(self, host):
@@ -267,8 +286,17 @@ class MultiSurfClient(object):
         if(peerRespBody != None):
             peerRespBodyArr = self.processPeerResp(peerRespBody)
             
-            areIdentical = self.compareScripts(peerRespBodyArr)
-            #areIdentical = self.compareByLine(peerRespBodyArr)
+            areIdentical = False
+            if self.comp == 0:
+                areIdentical = self.compareScripts(peerRespBodyArr)
+            elif self.comp == 1:
+                areIdentical = self.compareByLine(peerRespBodyArr)
+            elif self.comp == 2:
+                areIdentical = self.compareByLinks(peerRespBodyArr)
+            else:
+                #use all 3 algorithms for a more accurate result
+                print "implement me!"
+            
             if areIdentical:
                 #print "Looks good for peer %d. Both responses are identical." % (peerID)
                 print "Site is safe"
@@ -285,12 +313,22 @@ class MultiSurfClient(object):
                 print "peer got identical response. peer status: %d" % self.peerStatus
                 return util.IDENTICAL_RESP
         
-def doCrawl(url,peer,port):
+def doCrawl(url,peer,port,compAlgo):
     #print 'Entry point'
-    client = MultiSurfClient(True)
+    client = MultiSurfClient(True,False,compAlgo)
     #print 'created client'
     result = client.main(url,peer,port)
     #print 'got result'
+    return result
+
+def measure_baseline_latency(url,peer,port):
+    client = MultiSurfClient(True,True,0)
+    result = client.main(url,peer,port)
+    return result
+
+def measure_multisurf_latency(url,peer,port,compAlgo):
+    client = MultiSurfClient(True,False,compAlgo)
+    result = client.main(url,peer,port)
     return result
 
 if  __name__ == "__main__":
