@@ -7,7 +7,7 @@
 var port = null;
 
 // Verbosity level of messages can be set via the extensions's options page
-var verbose = (localStorage["verbosity"] === 'verbose');
+//var verbose = (localStorage["verbosity"] === 'verbose');
 
 // Init a connection to the native application
 connect();

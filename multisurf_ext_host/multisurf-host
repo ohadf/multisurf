@@ -19,7 +19,7 @@ def send_message(message):
   sys.stdout.flush()
 
 # Loop: reads messages from the webapp.
-def read_loop(f,cl):
+def read_loop(cl):
   while 1:
     # Read the message type (first 4 bytes).
     text_length_bytes = sys.stdin.read(4)
@@ -91,7 +91,7 @@ def read_loop(f,cl):
         set_badge(0)
 
     # Write text to log
-    f.write(text + '\n')
+    #f.write(text + '\n')
 
 def set_badge(is_safe):
   if (is_safe == 1):
@@ -102,9 +102,9 @@ def set_badge(is_safe):
     send_message('{"badge": "warning"}')
     
 def main():
-  LOG_FILE_PATH = '/home/marcela/Documents/Uni/MultiSurf/multisurf.log'
+  #LOG_FILE_PATH = '/home/marcela/Documents/Uni/MultiSurf/multisurf.log'
       
-  f = open(LOG_FILE_PATH, 'w')
+  #f = open(LOG_FILE_PATH, 'w')
 
   send_message('{"info": "Native app is running"}')
   
@@ -116,7 +116,7 @@ def main():
   
   send_message('{"info": "Entering read loop."}')
 
-  read_loop(f,cli)
+  read_loop(cli)
   
   f.close()
   sys.exit(0)
