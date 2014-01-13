@@ -1,0 +1,206 @@
+import httplib
+import sys
+import util
+import peerlib
+import socket
+import ssl
+import parser
+import comparisons
+
+# Display info about certs
+#print repr(sslSocket.server())
+#print repr(sslSocket.issuer())
+
+class MultiSurfClient(object):
+        
+    def __init__(self, crawling):
+        self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM) 
+        self.sslSocket = None
+        self.requestLen = 0
+        self.request = ''
+        self.myRespBody = ''
+        self.myRespBodyLen = 0
+        self.myRespBodyArr = []
+        self.myRespStatus = -1
+        self.peerStatus = -1
+
+    def main(self,url=None,peer=None,port=None):
+
+            if(len(sys.argv) < (2 + util.NUM_PEERS*2)):
+                print "Usage: python basic_multisurf_client.py <url> <peer1> <peer1 port> <peer2> <peer2 port> etc..."
+                return False
+
+            rawUrl = sys.argv[1]
+            trustedPeers = []
+            arg = 2
+            while (arg <= 2*util.NUM_PEERS):
+                trustedPeers.append(sys.argv[arg])
+                arg += 2
+            ports = []
+            arg = 3
+            while (arg <= 2*util.NUM_PEERS+1):
+                ports.append(int(sys.argv[arg]))
+                arg += 2
+            # send my request to the server
+            result = self.doMyRequest(rawUrl)
+                
+            if(result != util.INVALID_URL_ERR and result != util.HTTPS_ERR):
+                if(result != util.RESP_UNSUPP):
+                    myRespBody = result
+                #print myRespBody
+                    self.myRespBodyLen = len(myRespBody)
+                    self.myRespBodyArr = myRespBody.splitlines()
+            else:
+                return None
+
+#to support parser.py
+#respBodies = []
+#respBodies.append(myRespBody)
+            portnum = 0
+            for peer in trustedPeers:
+                # send the request to all my peers
+                self.doProtocol(peer, ports[portnum], rawUrl,portnum+1)              
+        return None
+        
+    def sendPeerReq(self,ip, port, rawUrl):
+        self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.s.connect((ip, port))
+        self.sslSocket = ssl.wrap_socket(self.s)
+        urlLen = util.pad_length(len(rawUrl))                
+        self.sslSocket.send(util.PREAMBLE)
+        self.sslSocket.send(urlLen)
+        self.sslSocket.send(rawUrl)
+        self.sslSocket.send(self.requestLen)
+        self.sslSocket.send(self.request)        
+        respCode = self.sslSocket.recv(util.RESP_CODE_LEN)
+        return respCode
+    
+    def getPeerResp(self,code):
+        if(code == util.SUCCESS_CODE):
+            #print "Receiving response from trusted peer."
+            
+            bodyLen = int(self.sslSocket.recv(util.RESP_BODY_LEN))
+            
+            if(bodyLen == 0):
+                print "No body"
+                self.peerStatus = int(self.sslSocket.recv(util.STATUS_LEN))
+                return None
+            
+            peerRespBody = self.sslSocket.recv(bodyLen)
+            self.s.close()
+            return peerRespBody
+        elif(code == util.UNSUPP_CODE):
+            self.peerStatus = int(self.sslSocket.recv(util.STATUS_LEN))
+            return None
+        self.s.close()
+        return None
+
+    def processPeerResp(self,resp):
+        peerRespBodyLen = len(resp)
+        
+        if(self.myRespBodyLen != peerRespBodyLen):
+            '''
+            print "Responses are not of the same length."
+            print "My response body length: %d" % self.myRespBodyLen
+            print "Peer's response body length: %d " % peerRespBodyLen
+            '''
+        return resp.splitlines()  
+                
+#Compare both responses up to the end of the shortest response
+    def compareByLine(self,peerArr):
+        areIdentical = True
+        for line in range (0, min(len(self.myRespBodyArr),len(peerArr))):
+            if self.myRespBodyArr[line] != peerArr[line]:
+                areIdentical = False
+                #print "Responses do not match at line %d." % line
+                #print "conflict: %r \n %r" % (self.myRespBodyArr[line], peerArr[line])
+                break
+        return areIdentical
+
+    def compareDiff(self,peerArr):
+        areIdentical = True
+        #if (comparisons.is_diff(self.myRespBodyArr, peerArr)) == True:
+        #    areIdentical = False
+            #f = open('diff_results.txt', 'a')
+            #diff = (comparisons.print_diff(self.myRespBodyArr, peerArr))[1]
+            #for d in diff:
+            #    if d[0] == '-' or d[0] == '+':
+            #        f.write(d+'\n')
+            #f.close()
+        return areIdentical
+
+    def compareScripts(self,peerArr):
+        areIdentical = True
+        [l1,l2] = comparisons.count_scripts(self.myRespBodyArr, peerArr)
+        #print self.myRespBodyArr
+        #print "*************************************************"
+        #print "*************************************************"
+        #print "*************************************************"
+        #print peerArr
+        if l1 != l2:
+            areIdentical = False
+            print "There are "+str(l1)+" script tags in file 1."
+            print "There are "+str(l2)+" script tags in file 2."
+        return areIdentical
+
+    def setHeaders(self, host):
+        host_hdr = 'Host: %s\n' % host
+        user_agent_hdr = 'User-Agent: '+util.user_agent_hdr+'\n'
+        accept_hdr = 'Accept: '+util.accept_hdr+'\n'
+        accept_lang_hdr = 'Accept-Language: '+util.accept_lang_hdr+'\n'
+        cookie_hdr = 'Cookie: '+util.cookie_hdr+'\n'
+        conn_hdr = 'Connection: '+util.conn_hdr+'\n'
+        return host_hdr+user_agent_hdr+accept_hdr+accept_lang_hdr+cookie_hdr+conn_hdr
+                                        
+    def doMyRequest(self,rawUrl):
+        serverResp = self.sendRequest(rawUrl)
+        respType = self.processWebserverResponse(serverResp)
+        result = self.processRespType(respType,serverResp)
+
+        if(result == util.RESP_REDIR_HTTPS):
+            print "web server is redirecting to HTTPS"
+            return util.HTTPS_ERR
+        elif(result == util.RESP_UNSUPP or result == util.RESP_REDIR_GOOD):
+            #print "no good: "+result
+            return util.RESP_UNSUPP
+        elif(result == util.INVALID_URL_ERR):
+            print "Invalid URL requested"
+            return util.INVALID_URL_ERR
+        else:
+            #print "this should be good: "+result
+            return result
+
+# Protocol starts here
+    def doProtocol(self,peer,port,url,peerID):
+        respCode = self.sendPeerReq(peer, port, url)
+        if (respCode == util.COMM_ERR_CODE):
+            print "Peer responded with an error."
+            return util.COMM_ERR
+        elif(respCode == util.HTTPS_REDIR_CODE):
+            print "Peer got different response"
+            return util.DIFF_RESP_ERR
+        
+        # respCode should be success code or unsupported code  at this point
+        peerRespBody = self.getPeerResp(respCode)
+                #print peerRespBody
+                
+        if(peerRespBody != None):
+            peerRespBodyArr = self.processPeerResp(peerRespBody)
+            
+            areIdentical = self.compareScripts(peerRespBodyArr)
+            #areIdentical = self.compareByLine(peerRespBodyArr)
+            if areIdentical:
+                #print "Looks good for peer %d. Both responses are identical." % (peerID)
+                print "Site is safe"
+                return util.SAFE
+            
+            else:
+                print "Site is unsafe. My status: %s" % self.myRespStatus
+                return util.UNSAFE
+        else:
+            if(self.myRespStatus != self.peerStatus):
+                print "peer got different response. peer status: %d" % self.peerStatus
+                return util.DIFF_RESP_ERR
+            else:
+                print "peer got identical response. peer status: %d" % self.peerStatus
+                return util.IDENTICAL_RESP

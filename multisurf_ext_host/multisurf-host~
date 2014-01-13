@@ -5,21 +5,17 @@
 import struct
 import sys
 import threading
-import json
-
-import client
-import util
 
 # Helper function that sends a message to the webapp.
 def send_message(message):
    # Write message size.
-  sys.stdout.write(struct.pack('I', len(message)))
+  sys.stdout.write(str(len(message)))
   # Write the message itself.
   sys.stdout.write(message)
   sys.stdout.flush()
 
 # Loop: reads messages from the webapp.
-def read_loop(f,cl):
+def read_loop(f):
   while 1:
     # Read the message type (first 4 bytes).
     text_length_bytes = sys.stdin.read(4)
@@ -33,43 +29,7 @@ def read_loop(f,cl):
 
     # Read the text (JSON object) of the message.
     text = sys.stdin.read(text_length)
-
-    obj = json.JSONDecoder().decode(text)
-
-    msg = obj['content']
-    if(obj['msgtype'] == 'content'):
-      send_message('{"info": "got here"}')
-      reqUrl = msg['url']
-      body = msg['pagecontent']
-
-      if(reqUrl == cl.getCurUrl()):
-        cl.setMyRespBody(body)
-        result = cl.doComparison()
-
-        if(result == util.SAFE):
-          set_badge(1)
-        else:
-          set_badge(0)
-      else:
-        set_badge(0)
-
-    elif(obj['msgtype'] == 'request'):
-      reqUrl = msg['url']
-      reqHeaders = msg['requestHeaders']
-
-      cl.parseReqHeaders(reqHeaders)
-
-      send_message('{"info": "sending request to peer(s)"}')
-
-      result = cl.doProtocol(reqUrl)
       
-      send_message('{"info": "right here"}')
-
-      if(result == util.COMM_ERR or result == util.HTTPS_ERR):
-        set_badge(0)
-      else:
-        send_message('{"info": "got response from peer(s)"}')
-
     # Write text to log
     f.write(text + '\n')
 
@@ -81,25 +41,19 @@ def set_badge(is_safe):
     
 def main():
   LOG_FILE_PATH = '/home/marcela/Documents/Uni/MultiSurf/multisurf.log'
-      
-  f = open(LOG_FILE_PATH, 'w')
-
+  
   send_message('{"info": "Native app is running"}')
   
   # As an example, here we always set the badge to the "safe" state
+  set_badge(1)
+      
+  f = open(LOG_FILE_PATH, 'a')
 
-  cli = client.MultiSurfClient()
-
-  send_message('{"info": "Created client."}')
-  
   send_message('{"info": "Entering read loop."}')
-
-  read_loop(f,cli)
+  read_loop(f)
   
   f.close()
   sys.exit(0)
 
 if __name__ == '__main__':
   main()
-
-   
