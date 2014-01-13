@@ -35,9 +35,16 @@ def get_links_latency():
     elapsed = end - start
     print elapsed
 
-def get_all_comparisons_latency():
+def get_two_peers_latency():
     start = time.time()
     basic_multisurf_client.measure_multisurf_latency(sys.argv[1],'localhost', 12345, 3)
+    end = time.time()
+    elapsed = end - start
+    print elapsed
+
+def get_all_comparisons_latency():
+    start = time.time()
+    basic_multisurf_client.measure_multisurf_latency(sys.argv[1],'localhost', 12345, 4)
     end = time.time()
     elapsed = end - start
     print elapsed

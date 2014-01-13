@@ -35,6 +35,7 @@ def crawl():
     for s in alexa_sites:
         if s != "www.hao123.com" or s != "www.sohu.com":
             print "starting client for: "+s
+            # 0 - number of scripts; 1 - line by line; 2 - links; 3 - two peers; 4 - combination of comparisons;
             result = basic_multisurf_client.doCrawl(s, 'localhost', 12345, 2)
             print "finishing client for: "+s
             if result == util.SAFE:

@@ -54,7 +54,10 @@ def crawl():
         r = list(reader)
         for item in r:
             # change to 501 for Alexa 500
-            if item[0] == '501':
+            #if item[0] == '401':
+            #    break
+
+            if item[0] == '201':
                 break
             else:
                 alexa_sites.append("www."+item[1])

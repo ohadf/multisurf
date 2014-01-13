@@ -313,6 +313,65 @@ class MultiSurfClient(object):
                 print "peer got identical response. peer status: %d" % self.peerStatus
                 return util.IDENTICAL_RESP
         
+# Protocol for 2 peers starts here
+    def doProtocol2(self,peer,port,url,peerID,peer2,port2,url2,peerID2):
+        respCode1 = self.sendPeerReq(peer, port, url)
+        if (respCode1 == util.COMM_ERR_CODE):
+            print "Peer responded with an error."
+            return util.COMM_ERR
+        elif(respCode1 == util.HTTPS_REDIR_CODE):
+            print "Peer got different response"
+            return util.DIFF_RESP_ERR
+
+        respCode2 = self.sendPeerReq(peer2, port2, url2)
+        if (respCode2 == util.COMM_ERR_CODE):
+            print "Peer responded with an error."
+            return util.COMM_ERR
+        elif(respCode2 == util.HTTPS_REDIR_CODE):
+            print "Peer got different response"
+            return util.DIFF_RESP_ERR
+        
+        # respCode should be success code or unsupported code  at this point
+        peerRespBody1 = self.getPeerResp(respCode1)
+                #print peerRespBody
+
+        # respCode should be success code or unsupported code  at this point
+        peerRespBody2 = self.getPeerResp(respCode2)
+                #print peerRespBody
+                
+        if(peerRespBody1 != None and peerRespBody2 != None):
+            peerRespBodyArr1 = self.processPeerResp(peerRespBody1)
+            peerRespBodyArr2 = self.processPeerResp(peerRespBody2)
+            
+            areIdentical = False
+            if self.comp == 0:
+                areIdentical = self.compareScripts(peerRespBodyArr)
+            elif self.comp == 1:
+                areIdentical = self.compareByLine(peerRespBodyArr)
+            elif self.comp == 2:
+                areIdentical = self.compareByLinks(peerRespBodyArr)
+            elif self.comp == 3:
+                areIdentical = self.compareWithTwoPeers(peerRespBodyArr1,peerRespBodyArr2)
+            else:
+                #use all 3 algorithms for a more accurate result
+                print "implement me!"
+            
+            if areIdentical:
+                #print "Looks good for peer %d. Both responses are identical." % (peerID)
+                print "Site is safe"
+                return util.SAFE
+            
+            else:
+                print "Site is unsafe. My status: %s" % self.myRespStatus
+                return util.UNSAFE
+        else:
+            if(self.myRespStatus != self.peerStatus):
+                print "peer got different response. peer status: %d" % self.peerStatus
+                return util.DIFF_RESP_ERR
+            else:
+                print "peer got identical response. peer status: %d" % self.peerStatus
+                return util.IDENTICAL_RESP
+
 def doCrawl(url,peer,port,compAlgo):
     #print 'Entry point'
     client = MultiSurfClient(True,False,compAlgo)
