@@ -64,28 +64,38 @@ def lines(filename):
         return [line.rstrip('\n') for line in f.readlines()]
 
 def count_scripts(l1, l2):
-    i1 = 0
-    i2 = 0
-    pattern = '<script>'
-    for line1 in l1:
-        n = re.findall(pattern, line1)
-        i1 += len(n)
-    for line2 in l2:
-        n = re.findall(pattern, line2)
-        i2 += len(n)
-    return [i1,i2]
+    soup1 = BeautifulSoup(l1)
+    s1 = soup1.find_all('script')
+    print len(s1)
+
+    soup2 = BeautifulSoup(l2)
+    s2 = soup2.find_all('script')
+    print len(s2)
+    return [len(s1), len(s2)]
 
 def get_diff(l1, l2):
     print_diff(l1, l2)
 
 def line_by_line(l1, l2):
-    if l1 == l2:
-        print "File 1 is equal to file 2."
-    else:
-        for line in range (0, min(len(l1),len(l2))):
-            if l1[line] != l2[line]:
-                print "Responses do not match at line %d." % line
-                print "conflict: %r \n %r" % (l1[line], l2[line])
+    soup1 = BeautifulSoup(l1)
+    soup2 = BeautifulSoup(l2)
+    prettyHTML1 = soup1.prettify()
+    prettyHTML2 = soup2.prettify()
+    f = open('prettyHTML1.txt', 'w')
+    f.write(prettyHTML1)
+    f.close()
+    f2 = open('prettyHTML2.txt', 'w')
+    f2.write(prettyHTML2)
+    f2.close()
+    
+    f3 = open('prettyHTML1.txt', 'r')
+    data1 = f3.read()
+    f4 = open('prettyHTML2.txt', 'r')
+    data2 = f4.read()
+    for line in range (0, min(len(data1), len(data2))):
+        if data1[line] != data2[line]:
+            return False
+    return True
 
 def compare_links(l1,l2):
     l1_links = []
@@ -108,16 +118,38 @@ def compare_links(l1,l2):
     return [set(l1_links), set(l2_links)]
 
 def compare_with_two_peers(l1,l2,l3):
-    if l1 == l2 == l3:
-        return 0
+    c1 = line_by_line(l1,l2)
+    c2 = line_by_line(l1,l3)
+    c3 = line_by_line(l2,l3)
+    if (c1 and c2 and c3):
+        return True
+    elif (not c1) and c3:
+        return False
+    elif (not c2) and c3:
+        return False
+    elif (not c1) and (not c2) and (not c3):
+        return True
     else:
-        for i in range(0, (len(parse_lines1)-1)):
-            if (not parse_lines1[i] == parse_lines2[i]) and (parse_lines2[i] == parse_lines3[i]):
-                return 1
-            elif (not parse_lines1[i] == parse_lines3[i]) and (parse_lines2[i] == parse_lines3[i]):
-                return 2
-            elif (not parse_lines1[i] == parse_lines2[i]) and (not parse_lines1[i] == parse_lines3[i]) and (not parse_lines2[i] == parse_lines3[i]):
-                return 3
+        return False
+    #if l1 == l2 == l3:
+    #    return 0
+    #else:
+    #    for i in range(0, (len(parse_lines1)-1)):
+    #        if (not parse_lines1[i] == parse_lines2[i]) and (parse_lines2[i] == parse_lines3[i]):
+    #            return 1
+    #        elif (not parse_lines1[i] == parse_lines3[i]) and (parse_lines2[i] == parse_lines3[i]):
+    #            return 2
+    #        elif (not parse_lines1[i] == parse_lines2[i]) and (not parse_lines1[i] == parse_lines3[i]) and (not parse_lines2[i] == parse_lines3[i]):
+    #            return 3
+
+def multiple_comparisons(l1,l2):
+    [s1,s2] = count_scripts(l1,l2)
+    x = line_by_line(l1,l2)
+    [c1,c2] = compare_links(l1,l2)
+    if ((s1 == s2) and (x) and (c1 == c2)):
+        return True
+    else:
+        return False
 
 
 # --------------------------------------- for testing purposes only
@@ -137,11 +169,14 @@ def compare_with_two_peers(l1,l2,l3):
 #resp2 = respMsg2.split("\n")
 # --------------------------------------- 
 
-#count_scripts(resp1, resp2)
+#count_scripts(respMsg1, respMsg2)
 
 #print "*****************************************"
 
-#line_by_line(resp1, resp2)
+#f1 = open('client.txt','r')
+#f2 = open('peer.txt', 'r')
+
+#line_by_line(f1.read(), f2.read())
 
 #print "*****************************************"
 

@@ -1,0 +1,12 @@
+<html>
+ <head>
+ </head>
+ <body>
+  <h1>
+   Hello world
+  </h1>
+  <p>
+   How are you today?
+  </p>
+ </body>
+</html>
