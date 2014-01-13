@@ -17,7 +17,9 @@ chrome.runtime.onMessage.addListener(
   function(request, sender, sendResponse) {
     // If this is a message from a content script, pass it along to the native application
     if (sender.tab) {
-      message = {url: sender.tab.url, pagecontent: request.pagecontent};
+      contents = {'url': sender.tab.url, 'pagecontent': request.pagecontent};
+      message = {'msgtype': 'content',
+                 'content': contents};
       sendNativeMessage(message);
     }
   });
@@ -32,13 +34,15 @@ chrome.webRequest.onSendHeaders.addListener(
       // Only process GET requests for main_frames
       if ((details.method === 'GET') && (details.type === 'main_frame')) {
         var short_details = {
-          'requestId': details.requestId, 
+          //'requestId': details.requestId, 
           'url': details.url,
-          'method': details.method,
-          'type': details.type,
+          //'method': details.method,
+          //'type': details.type,
           'requestHeaders': details.requestHeaders
         };
-        sendNativeMessage(short_details);
+        message = {'msgtype': 'request',
+                    'content': short_details};
+        sendNativeMessage(message);
       }
     }
   },
@@ -46,6 +50,7 @@ chrome.webRequest.onSendHeaders.addListener(
   ["requestHeaders"]);
  
 // Whenever we complete a request, pipe it to the application
+/*
 chrome.webRequest.onCompleted.addListener(
   function(details) {    
     if (verbose) {
@@ -66,7 +71,8 @@ chrome.webRequest.onCompleted.addListener(
     }
   },
   {urls: ["<all_urls>"]},
-  ["responseHeaders"]);  
+  ["responseHeaders"]);
+  */
 
 // Connect to the native application
 function connect() {
@@ -84,7 +90,7 @@ function sendNativeMessage(message) {
   }
     
   port.postMessage(message);
-  //console.log('Sent message: ' + JSON.stringify(message));
+  console.log('Sent message: ' + JSON.stringify(message));
 }
 
 // Receive message from native application

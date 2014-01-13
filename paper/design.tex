@@ -1,6 +1,22 @@
 \section{Design}
 \label{sec:design}
 
+Our plan, in a few sentences:
+Our client will issue an HTTP request to the server. At the same time it will issue a request via SSL to a trusted peer, which will also issue the same request to the server. The peer will return the server’s response to the client, which will in turn compare the original server response with the tunneled response. If the two are the same, we know with high probability that the content was not changed. We use the fact that it is hard for an adversary to perform the MITM attack at multiple locations at the same time.
 
+Version 0:
+Design the protocol between trusted clients.
+Test the protocol and infrastructure via a script which simulates the browser + plugin. The script will:
+Issue HTTP requests according to user input. Along with the request to the server, issue a secured request to one trusted client and wait for his response. Compare the two responses and produce an “All OK” / “Oh no oh no something went wrong” response.
+Wait for secure communication from other clients. As a response to such communication, issue HTTP requests and pass the result through the secure channel.
+
+Version 1:
+Browser plug-in implementing the following features:
+Perform an HTTP request for some web content according to user input.
+Peer-request protocol: request that one or more trusted peers get the same web content as the originating client and relay this data back to the client.
+Peer-response protocol: listen for requests from peers for web content and send back the received content to the requesting peer.
+Consistency check: verify that the requested web content is consistent with the peer(s)’s received content.
+Alerts the user about the result of the consistency check and gives options to fine-tune the consistency checker based on the results.
+Allows the user to configure the list of trusted peers/organizations, as well as the sensitivity of the consistency checker.
 
 

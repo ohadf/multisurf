@@ -3,6 +3,7 @@
 import sys
 import re
 import httplib
+from bs4 import BeautifulSoup
 
 def longest_matching_slice(a, a0, a1, b, b0, b1):
     sa, sb, n = a0, b0, 0
@@ -86,6 +87,38 @@ def line_by_line(l1, l2):
                 print "Responses do not match at line %d." % line
                 print "conflict: %r \n %r" % (l1[line], l2[line])
 
+def compare_links(l1,l2):
+    l1_links = []
+    soup1 = BeautifulSoup(l1)
+    for link in soup1.find_all('a'):
+        l1_links.append(link.get('href'))
+        print(link.get('href'))
+    for link2 in soup1.find_all('img'):
+        l1_links.append(link2.get('src'))
+        print(link2.get('src'))
+
+    l2_links = []
+    soup2 = BeautifulSoup(l2)
+    for link3 in soup2.find_all('a'):
+        l2_links.append(link3.get('href'))
+        print(link3.get('href'))
+    for link4 in soup2.find_all('img'):
+        l2_links.append(link4.get('src'))
+        print(link4.get('src'))
+    return [set(l1_links), set(l2_links)]
+
+def compare_with_two_peers(l1,l2,l3):
+    if l1 == l2 == l3:
+        return 0
+    else:
+        for i in range(0, (len(parse_lines1)-1)):
+            if (not parse_lines1[i] == parse_lines2[i]) and (parse_lines2[i] == parse_lines3[i]):
+                return 1
+            elif (not parse_lines1[i] == parse_lines3[i]) and (parse_lines2[i] == parse_lines3[i]):
+                return 2
+            elif (not parse_lines1[i] == parse_lines2[i]) and (not parse_lines1[i] == parse_lines3[i]) and (not parse_lines2[i] == parse_lines3[i]):
+                return 3
+
 
 # --------------------------------------- for testing purposes only
 #url1 = sys.argv[1]
@@ -113,3 +146,7 @@ def line_by_line(l1, l2):
 #print "*****************************************"
 
 #get_diff(resp1, resp2)
+
+#print "******************************************"
+
+#compare_links(respMsg1,respMsg2)

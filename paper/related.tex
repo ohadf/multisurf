@@ -1,3 +1,12 @@
 \section{Related Work}
 \label{sec:related}
 
+Related Work:
+
+Tor: The goal of Tor is to hide the origin of a web request. However, the use of Tor is orthogonal to this work for a few reasons: (1) Tor is not suitable for every-day web browsing because it is slow and many commonly used services are not compatible with Tor, and (2) Users may not be seeking the kind of secure web browsing environment that Tor offers, i.e. they may still want to have a locale-dependent/personalized experience. Thus, our work provides the compatibility with common web services, is light-weight, and does not significantly change a user’s every-day browsing experience.
+
+Perspectives: Rather than validating an SSL certificate by checking for certificate authority approval, with Perspectives the browser validates a certificate by checking for consistency with the certificates observed by the network notaries over time. Our system uses a similar approach to check whether web content is being served consistently across the web. Instead of having a group of trusted notary servers, the user designates a group of trusted peers/organizations that mirror the HTTP request on her behalf and relay the response they receive from the web server back to the user. The user’s browser then compares the received responses to verify that the various versions of the requested web content are consistent.            
+                                                   
+Web Tripwire: Using client-side javascript code, web tripwires are a way to detect many in-flight page modifications over HTTP.  Our system differs in a couple of ways: (1) We attempt to solely detect man-in-the-middle attacks, whereas web tripwires detects modifications from pop-up blockers, ad blockers, ad injectors, as well as from other sources. (2) Our system will not have access to any servers that hold web data.  Instead of comparing the requested page to a known-good representation of the requested page, we compare our requested page to a trusted peer/organization’s request of the same page.  
+
+Mitigating Man in the Middle Attack over Secure Sockets Layer: This paper presents and implements a novel approach to solve man-in-the-middle attacks over SSL.  There has been related work, such as this, on the topic of MITM attacks over SSL, but few that cover these attacks simply over HTTP.  Our system differs by detecting attacks using trusted peers/organizations, as opposed to solving them using cryptographic functionality.
