@@ -1,9 +1,32 @@
 \section{System Model}
 \label{sec:model}
 
-Upon a request for a web page, the Multisurf client engages a user-defined set of trusted peers, trusted end-hosts which mirror the browser's web requests on demand and return the served web content to the client.
-Should the client detect any discrepancies between its version of a website and 
+In Multisurf, a user runs the Multisurf browser extension which communicates with a native client application in the background.
+The extension gathers all outgoing HTTP requests and incoming HTTP responses, including the retrieved page content, and passes this information on to the client.
+Upon a request for a web page, the Multisurf client engages a user-defined set of trusted peers, trusted end-hosts which run a specialized Multisurf peer application that mirrors the browser's web requests on demand and return the served web content to the client.
+To ensure that the the client-to-peer connections are not compromised, these parties establish a secure communications channel using HTTPS when participating in the Multisurf protocol.
+Once all peers have finished the protocol, the client performs the integrity check by comparing the page content from each peer with each other as well as with its own retrieved page content on various levels of granularity.
+We elaborate on the specific comparison vectors used in Section \ref{sec:design}.
 
-Threat Model:
-The attacker can only control a client’s access link, and is distant enough from the server’s link to not control all server-to-client traffic. We assume the client is the target (for example, attacker uses an unsecure WiFi network which he shares with client).
-An attack in which the adversary has compromised the server’s link is out of the scope of this work.
+The client then returns the result of the integrity check back to the browser extension so that it can reflect the result to the user.
+Multisurf considers a site to be safe if either no discrepancies are found, or if the client and peers all differ in the exact same page element in the content. 
+The latter case could indicate a peer-specific server-side modification to the page based on factors such as geographic location, or an in-flight change by an advertising company inserting a different ad for each peer in the same element of the web page, neither of which are malicious in nature. 
+Should the client detect discrepancies between some of the peers and itself that are not consistent across all checked content, it will mark the web page as unsafe.
+Lastly, if the browser extension or the client detect that the requested web page supports HTTPS, querying the peer becomes unnecessary as we assume the site cannot be compromised by a man-in-the-middle.
+Thus, the extension displays a third kind of message to the user when a site is HTTPS-only.
+
+\subsection{Goals}
+\label{sec:sec:goals}
+We aim to achieve the following properties in Multisurf:
+
+\textbf{\textit{Lightweight.}} Multisurf should not pose an unreasonable computational or storage burden on the browser, the client host, or the trusted peers. 
+Since the client and peers communicate via HTTPS, Multisurf must only engage the peers when necessary, \emph{i.e.,} when the user requests an unencrypted web page.
+
+\textbf{\textit{Rapid Detection of Modifications.}} Because there are no guarantees about the integrity of the traffic sent over an HTTP connection, the client must be able to easily detect any discrepancies between its version of a web page and the peer's version to quickly notify the user of the status of the page. 
+To ensure rapid detection of changes to pages \emph{en route}, Multisurf's comparison vectors must depend only on the served page contents.
+
+\subsection{Threat Model} 
+\label{sec:sec:threat}
+We assume an active man-in-the-middle (MITM) attacker who can only control a Multisurf user's Internet access link, and is distant enough from any web server's link to not control all server-to-client traffic; for instance, the adversary resides on the same insecure WiFi network as the user.
+However, Multisurf cannot prevent passive nor active MITM attacks against users from occurring, but instead provides integrity checks to help users detect when they have become the victim of an \emph{active} MITM attack. 
+Detecting an eavesdropper on the user's access link as well as discovering and protecting against a compromised web server link remain out of the scope of this work.
