@@ -6,9 +6,9 @@ Most commonly seen as part of the HTTPS protocol, SSL/TLS provides data and mess
 Nonetheless, about 48\% of popular websites remain insecure by only supporting HTTP connections~\cite{sslpulse}, which are vulnerable to man-in-the-middle (MITM) attacks.
 Because HTTP traffic is not encrypted nor authenticated, an unsuspecting user may be visiting a specific website without realizing that an adversary has modified the contents of these web pages while in transit.
 
-Indeed, such in-flight web page modifications occur in practice with a surprising frequency for various reasons, often resulting in undesirable effects such as injected advertisements, broken pages, and exploitable security vulnerabilities~\cite{tripwires}. 
-While the vast majority of changes to web pages in transit have economic incentives for website publishers,~\cite{tripwires} also found that a portion of their measured in-flight modifications was due to injected malware.
-To provide web servers with a practical, more affordable alternative to HTTPS, Reis \emph{et al.}~\cite{tripwires} proposed \emph{web tripwires}, client-side scripts that can detect most modifications to unencrypted web pages.
+Indeed, such in-flight web page modifications occur in practice with a surprising frequency for various reasons, often resulting in undesirable effects such as injected advertisements, broken pages, and exploitable security vulnerabilities \cite{reis2008detecting}. 
+While the vast majority of changes to web pages in transit have economic incentives for website publishers, \cite{reis2008detecting} also found that a portion of their measured in-flight modifications was due to injected malware.
+To provide web servers with a practical, more affordable alternative to HTTPS, Reis \emph{et al.} \cite{reis2008detecting} proposed \emph{web tripwires}, client-side scripts that can detect most modifications to unencrypted web pages.
 
 However, this solution requires that website publishers modify their pages to contain these scripts, and users unaware of the installed web tripwires may disregard warning messages as spam.
 Furthermore, helping website publishers understand and react to any changes made \emph{en route} does not necessarily help users protect themselves from injected malware.
