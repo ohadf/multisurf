@@ -1,7 +1,7 @@
 \section{Related Work}
 \label{sec:related}
 
-TODO: Add intro part here.
+While there has been much research into man in the middle attacks, their attack surfaces, as well as their detection and prevention, our work takes a different approach and is specific to HTTP.  Parts of Multisurf were inspired by Web Tripwires; other work that is related includes Tor, Perspectives, and a variety of research on SSL.
 
 {\bf Web Tripwires.} Using client-side javascript code, web tripwires are a way to detect many in-flight page modifications over HTTP~\cite{reis2008detecting}.  Our system differs in a couple of ways: (1) We attempt to solely detect man-in-the-middle attacks, whereas web tripwires detects modifications from pop-up blockers, ad blockers, ad injectors, as well as from other sources. (2) Our system will not have access to any servers that hold web data.  Instead of comparing the requested page to a known-good representation of the requested page, we compare our requested page to a trusted peer/organization’s request of the same page. 
 
