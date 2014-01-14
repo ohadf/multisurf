@@ -1,28 +1,37 @@
 \section{Design}
 \label{sec:design}
 
-Our plan, in a few sentences:
-Our client will issue an HTTP request to the server. At the same time it will issue a request via SSL to a trusted peer, which will also issue the same request to the server. The peer will return the server’s response to the client, which will in turn compare the original server response with the tunneled response. If the two are the same, we know with high probability that the content was not changed. We use the fact that it is hard for an adversary to perform the MITM attack at multiple locations at the same time.
-
-Version 0:
-Design the protocol between trusted clients.
-Test the protocol and infrastructure via a script which simulates the browser + plugin. The script will:
-Issue HTTP requests according to user input. Along with the request to the server, issue a secured request to one trusted client and wait for his response. Compare the two responses and produce an “All OK” / “Oh no oh no something went wrong” response.
-Wait for secure communication from other clients. As a response to such communication, issue HTTP requests and pass the result through the secure channel.
-
-Version 1:
-Browser plug-in implementing the following features:
-Perform an HTTP request for some web content according to user input.
-Peer-request protocol: request that one or more trusted peers get the same web content as the originating client and relay this data back to the client.
-Peer-response protocol: listen for requests from peers for web content and send back the received content to the requesting peer.
-Consistency check: verify that the requested web content is consistent with the peer(s)’s received content.
-Alerts the user about the result of the consistency check and gives options to fine-tune the consistency checker based on the results.
-Allows the user to configure the list of trusted peers/organizations, as well as the sensitivity of the consistency checker.
-
-
+The Multisurf system has three main components:
 \begin{itemize}
-\item By the number of script tags in the content. Any discrepancies in this could indicate a malicious script injection.
-\item 
+\item The browser extension which interacts with the user.
+\item The native client application which is responsible for communicating with the peers and for performing the integrity checks.
+\item The peer application which mirrors any requests from the Multisurf client.
 \end{itemize}
 
+The browser extension gathers HTTP request and response data while the user browses the web normally.
+In the background, the Multisurf extension passes this information to the native client, which solicits all received HTTP requests via SSL to one or more trusted peers.
+These also issue the same request for a web page to the web server.
+The peer returns its version of the server’s served content to the client.
+Figure \ref{fig:protocol} details the client-peer protocol.
 
+To perform the integrity check, the Multisurf client compares the original server web page content with the peers' versions of the request web page.
+We have designed various comparison vectors which the client can employ to verify the integrity of the received content for the request web page:
+\begin{itemize}
+\item A line-by-line comparison of the content. This is a rather coarse-grained comparison metric.
+\item The number of script tags in the content. Any discrepancies in this could indicate a malicious script injection.
+\item The links contained within \texttt{<script>} tags and \texttt{<a>} tags. This algorithm finds matching elements in the web content being compared. Differing links in the same element may indicate a malicious in-flight injection.
+\end{itemize}
+
+The client sends the result of the consistency check back to the browser extension, which displays the results to the user.
+In the case of an unsafe website, the browser extension allows the user to view the differing web pages to help her determine if she deems the differences malicious or not.
+Should the user decide that an unsafe website is malicous, the extension allows her to blacklist the site for future browsing sessions.
+
+\begin{figure}[h]
+\centering
+\includegraphics[scale=0.4]{./Protocol.png}
+\caption{The Multisurf client-peer protocol.}
+\label{fig:protocol}
+\end{figure}
+
+\subsection{Implementation}
+We have implemented a working Multisurf prototype. The browser extension is implemented for the Google Chrome browser in Javascript and Python. The native client and peer applications are implemented in Python. We have made our code available on Git Hub.\footnote{\url{http://github.com/ohadf/multisurf}}
