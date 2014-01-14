@@ -1,9 +1,18 @@
 \section{Introduction}
 \label{sec:intro}
 
-Example of incorporation citations~\cite{coral:nsdi04}.
 
-Man in the middle (MITM) attacks pose great risk to web users. An attacker can serve malicious web content to users and act on their behalf. The canonical way of dealing with MITM attacks is through encryption: using SSL to make sure communication is protected. In this work, we aim to provide a MITM detection mechanism for users that access websites that do not support SSL. Such lack of support may be due to limited resources, neglect or security-unsavvy web administrators. Our project provides protection for users from becoming victims of hijacked HTTP traffic, without requiring support from the admin of the website. The control is given to the end user in whether she would like to surf the web in a more secure way.
+An increasing number of popular websites support SSL/TLS, the current standard for encrypting web traffic to protect users' personal or confidential information from malicious attackers attempting to eavesdrop on users' browsing. 
+Nonetheless, about 48\% of popular websites remain insecure by only supporting HTTP connections \cite{ssl_pulse}, which are vulnerable to man-in-the-middle (MITM) attacks, in which 
+An unsuspecting user may continue browsing a specific website unknowingly allowing a malicious attacker to modify the contents of the specific webpages in-flight.
+These changes are often subtle as \cite{tripwires}
+Man-in-the-middle (MITM) attacks pose a great risk to web users. 
+An attacker can serve malicious web content to users and act on their behalf. 
+The canonical way of dealing with MITM attacks is through encryption: using SSL to make sure communication is protected. 
+In this work, we aim to provide a MITM detection mechanism for users that access websites that do not support SSL. 
+Such lack of support may be due to limited resources, neglect or security-unsavvy web administrators. 
+Our project provides protection for users from becoming victims of hijacked HTTP traffic, without requiring support from the admin of the website. 
+The control is given to the end user in whether she would like to surf the web in a more secure way.
 
 We would like to achieve the following goals:
 A system that detects whether HTTP web content was changed en route.
