@@ -1,17 +1,14 @@
 \section{Future Work}
 \label{sec:future}
 
--More fine-grained comparison algorithms (handle more dynamic content, more accuracy)
+{\bf Comparison Algorithms.} We currently have four different comparison algorithms, and the majority of them are not relatively accurate.  Some future work includes more fine-grained comparison algorithms that can better handle dynamic content and provide better accuracy.  Another possibility is the combination of different comparison algorithms.
 
--Learning algorithm
+{\bf Learning Algorithm.} It would be useful for Multisurf to learn which responses look ``safe'' and which look ``unsafe'' while a client is using it.  This would also improve accuracy and potentially performance.    
 
--More user-friendly display in browser
+{\bf User-friendly Display.} A graphical display in the browser would make Multisurf more usable.  The challenge for this work is in deciding what is most understandable to a user.  While showing the different lines of html are not understandable (and therefore not useful), showing what parts of a web page are different between the client's response and the peer's response would be helpful.
 
--Methods to not rely on a peer always being available
+{\bf Availability.} Our future work involves new ways to be able to run our system without depending on a peer or peers to always be available.  
 
--Optimizations (concurrent peer interaction as opposed to consecutive)
+{\bf Optimizations.} There is plenty of room in Multisurf for performance optimizations.  For example, in the comparison algorithm with two peers, each peer request is sent consecutively, but the performance can be optimized if the peer requests were sent simultaneously.  
 
--Other browsers
-
--Compare performance with HTTPS
-
+{\bf Other Browsers.}  Adding extensions for other browsers would make Multisurf available to more users.
