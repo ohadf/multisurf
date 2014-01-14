@@ -118,7 +118,7 @@ def main():
 
   read_loop(cli)
   
-  #f.close()
+  f.close()
   sys.exit(0)
 
 if __name__ == '__main__':

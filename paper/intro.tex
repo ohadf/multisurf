@@ -1,24 +1,21 @@
 \section{Introduction}
 \label{sec:intro}
 
+An increasing number of popular websites support the SSL/TLS protocol, the current standard for encrypting web traffic.
+Most commonly seen as part of the HTTPS protocol, SSL/TLS provides data and message confidentiality to protect users browsing the web from malicious attackers attempting to eavesdrop or tamper with traffic. 
+Nonetheless, about 48\% of popular websites remain insecure by only supporting HTTP connections \cite{sslpulse}, which are vulnerable to man-in-the-middle (MITM) attacks.
+Because HTTP traffic is not encrypted nor authenticated, an unsuspecting user may be visiting a specific website without realizing that an adversary has modified the contents of these web pages while in transit.
 
-An increasing number of popular websites support SSL/TLS, the current standard for encrypting web traffic to protect users' personal or confidential information from malicious attackers attempting to eavesdrop on users' browsing. 
-Nonetheless, about 48\% of popular websites remain insecure by only supporting HTTP connections \cite{ssl_pulse}, which are vulnerable to man-in-the-middle (MITM) attacks, in which 
-An unsuspecting user may continue browsing a specific website unknowingly allowing a malicious attacker to modify the contents of the specific webpages in-flight.
-These changes are often subtle as \cite{tripwires}
-Man-in-the-middle (MITM) attacks pose a great risk to web users. 
-An attacker can serve malicious web content to users and act on their behalf. 
-The canonical way of dealing with MITM attacks is through encryption: using SSL to make sure communication is protected. 
-In this work, we aim to provide a MITM detection mechanism for users that access websites that do not support SSL. 
-Such lack of support may be due to limited resources, neglect or security-unsavvy web administrators. 
-Our project provides protection for users from becoming victims of hijacked HTTP traffic, without requiring support from the admin of the website. 
-The control is given to the end user in whether she would like to surf the web in a more secure way.
+Indeed, such in-flight web page modifications occur in practice with a surprising frequency for various reasons, often resulting in undesirable effects such as injected advertisements, broken pages, and exploitable security vulnerabilities \cite{tripwires}. 
+While the vast majority of changes to web pages in transit have economic incentives for website publishers, \cite{tripwires} also found that a portion of their measured in-flight modifications was due to injected malware.
+To provide web servers with a practical, more affordable alternative to HTTPS, Reis \emph{et al.} \cite{tripwires} proposed \emph{web tripwires}, client-side scripts that can detect most modifications to unencrypted web pages.
 
-We would like to achieve the following goals:
-A system that detects whether HTTP web content was changed en route.
-Lightweight compared to VPN.
-Can be deployed without the cooperation of the site owner.
+However, this solution requires that website publishers modify their pages to contain these scripts, and users unaware of the installed web tripwires may disregard warning messages as spam.
+Furthermore, helping website publishers understand and react to any changes made \emph{en route} does not necessarily help users protect themselves from injected malware.
+This paper presents \emph{Multisurf}, a browser extension which checks the integrity of unencrypted web pages helping users detect when their HTTP traffic has been hijacked, and without requiring support from the administrator or owner of the affected website. 
+Multisurf's collaborative integrity checks detect in-flight changes to websites through a system of trusted peers, end-hosts run by persons or institutions that a user running the Multisurf client trusts. 
+By gathering the peers' versions of requested web content, the client can verify whether the visited web page was tampered with in transit.
+Because many changes to web pages \emph{en route} are not of malicious nature, the Multisurf client displays the result of the integrity check and gives the user the option of viewing the peers' versions to help her determine if she accepts the in-flight modifications or if she considers the modifications to be malicious, blacklisting the site. 
+Thus, Multisurf leverages out-of-band communication, inter-personal trust and takes user preferences into account giving control to the end user in whether she would like to surf the web in a more aware way.
 
-Threat Model:
-The attacker can only control a client’s access link, and is distant enough from the server’s link to not control all server-to-client traffic. We assume the client is the target (for example, attacker uses an unsecure WiFi network which he shares with client).
-An attack in which the adversary has compromised the server’s link is out of the scope of this work.
+This paper is organized as follows. In Section \ref{sec:model} we outline our system model. Section \ref{sec:design} details Multisurf's system design and the collaborative integrity check protocol; we evaluate the efficacy and accuracy of Multisurf in Section \ref{sec:eval}. Section \ref{sec:related} describes some related work, and we discuss directions for future work in Section \ref{sec:future}. We conclude in Section \ref{sec:conclusion}.
