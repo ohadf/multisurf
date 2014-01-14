@@ -1,3 +1,9 @@
 \section{System Model}
 \label{sec:model}
 
+Upon a request for a web page, the Multisurf client engages a user-defined set of trusted peers, trusted end-hosts which mirror the browser's web requests on demand and return the served web content to the client.
+Should the client detect any discrepancies between its version of a website and 
+
+Threat Model:
+The attacker can only control a client’s access link, and is distant enough from the server’s link to not control all server-to-client traffic. We assume the client is the target (for example, attacker uses an unsecure WiFi network which he shares with client).
+An attack in which the adversary has compromised the server’s link is out of the scope of this work.
