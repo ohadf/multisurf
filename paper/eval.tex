@@ -76,7 +76,7 @@ A possible man in the middle attack is to inject or change a URL in the response
 The accuracy rates for the three comparison methods above are relatively low; this can be improved by adding a second peer.  In this case, we check to see if the response of the client is different from either of the peers' responses.  If the peers' responses are the same (as measured line by line) and the client's response is different (as measured line by line), then the site is classified as ``unsafe.''  Otherwise, the site is deemed ``safe.''  The accuracy for this method is 100\% and can be seen in Figure~\ref{fig:twopeers}.
 
 \begin{figure}[htb]
-\label{fig:peers}
+\label{fig:twopeers}
 \begin{center}
 \includegraphics[width=\linewidth]{twopeers}
 \caption{Responses from Comparing with Two Peers.}
