@@ -79,16 +79,16 @@ def line_by_line(l1, l2):
     soup2 = BeautifulSoup(l2)
     prettyHTML1 = soup1.prettify()
     prettyHTML2 = soup2.prettify()
-    f = open('prettyHTML1.txt', 'w')
+    f = open('/tmp/prettyHTML1.txt', 'w')
     f.write(prettyHTML1.encode('ascii', 'ignore'))
     f.close()
-    f2 = open('prettyHTML2.txt', 'w')
+    f2 = open('/tmp/prettyHTML2.txt', 'w')
     f2.write(prettyHTML2.encode('ascii', 'ignore'))
     f2.close()
     
-    f3 = open('prettyHTML1.txt', 'r')
+    f3 = open('/tmp/prettyHTML1.txt', 'r')
     data1 = f3.read()
-    f4 = open('prettyHTML2.txt', 'r')
+    f4 = open('/tmp/prettyHTML2.txt', 'r')
     data2 = f4.read()
     for line in range (0, min(len(data1), len(data2))):
         if data1[line] != data2[line]:

@@ -79,10 +79,10 @@ def line_by_line(l1, l2):
     soup2 = BeautifulSoup(l2)
     prettyHTML1 = soup1.prettify()
     prettyHTML2 = soup2.prettify()
-    f = open('prettyHTML1.txt', 'w')
+    f = open('/tmp/prettyHTML1.txt', 'w')
     f.write(prettyHTML1.encode('ascii', 'ignore'))
     f.close()
-    f2 = open('prettyHTML2.txt', 'w')
+    f2 = open('/tmp/prettyHTML2.txt', 'w')
     f2.write(prettyHTML2.encode('ascii', 'ignore'))
     f2.close()
     
@@ -147,23 +147,23 @@ def multiple_comparisons(l1,l2):
 
 
 # --------------------------------------- for testing purposes only
-url1 = sys.argv[1]
-conn1 = httplib.HTTPConnection(url1)
-conn1.request("GET", "")
-r1 = conn1.getresponse()
-respMsg1 = r1.read()
+#url1 = sys.argv[1]
+#conn1 = httplib.HTTPConnection(url1)
+#conn1.request("GET", "")
+#r1 = conn1.getresponse()
+#respMsg1 = r1.read()
 
-url2 = sys.argv[2]
-conn2 = httplib.HTTPConnection(url2)
-conn2.request("GET", "")
-r2 = conn2.getresponse()
-respMsg2 = r2.read()
+#url2 = sys.argv[2]
+#conn2 = httplib.HTTPConnection(url2)
+#conn2.request("GET", "")
+#r2 = conn2.getresponse()
+#respMsg2 = r2.read()
 
-url3 = sys.argv[3]
-conn3 = httplib.HTTPConnection(url3)
-conn3.request("GET", "")
-r3 = conn3.getresponse()
-respMsg3 = r3.read()
+#url3 = sys.argv[3]
+#conn3 = httplib.HTTPConnection(url3)
+#conn3.request("GET", "")
+#r3 = conn3.getresponse()
+#respMsg3 = r3.read()
 
 #resp1 = respMsg1.split("\n")
 #resp2 = respMsg2.split("\n")

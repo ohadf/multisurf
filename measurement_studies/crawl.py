@@ -31,41 +31,41 @@ def crawl():
     https = 0
     identical_resp = 0
     diff_resp = 0
-    print len(alexa_sites)
+    #print len(alexa_sites)
     for s in alexa_sites:
         if s != "www.hao123.com" or s != "www.sohu.com":
-            print "starting client for: "+s
+            #print "starting client for: "+s
             # 0 - number of scripts; 1 - line by line; 2 - links; 3 - two peers; 4 - combination of comparisons;
             result = basic_multisurf_client.doCrawl(s, 'localhost', 12345, 3)
-            print "finishing client for: "+s
+            #print "finishing client for: "+s
             if result == util.SAFE:
-                print s+" : safe"
+                #print s+" : safe"
                 safe += 1
             elif result == util.UNSAFE:
-                print s+" : unsafe"
+                #print s+" : unsafe"
                 unsafe += 1
             elif result == util.HTTPS_ERR:
-                print s+": https-only"
+                #print s+": https-only"
                 https +=1
             elif result == util.DIFF_RESP_ERR:
-                print s+" :different responses"
+                #print s+" :different responses"
                 diff_resp +=1
             elif result == util.IDENTICAL_RESP:
-                print s+" identical responses"
+                #print s+" identical responses"
                 identical_resp += 1
             elif result == util.COMM_ERR or result == util.INVALID_URL_ERR:
-                print s+" :error"
+                #print s+" :error"
                 errors +=1 
     return [safe,unsafe,identical_resp,diff_resp,https,errors]
 
-simplecrawl()
+#simplecrawl()
 total_a = 0
 total_b = 0
 total_c = 0
 total_d = 0
 total_e = 0
 total_f = 0
-#[a,b,c,d,e,f] = crawl()
+[a,b,c,d,e,f] = crawl()
 fi = open(sys.argv[1],'w')
 fi.write("The number of sites determined to be safe: "+str(a)+"\n")
 fi.write("The number of sites determined to be unsafe (there is a diff): "+str(b)+"\n")

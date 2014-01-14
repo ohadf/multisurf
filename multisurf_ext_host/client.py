@@ -99,7 +99,7 @@ class MultiSurfClient(object):
         areIdentical = True
         result = comparisons.compare_with_two_peers(self.myRespBody,peerArr1,peerArr2)
         if result == 1 or result == 2:
-            areIdentical == False
+            areIdentical = False
         return areIdentical
 
     '''Multisurf protocol with peers'''
