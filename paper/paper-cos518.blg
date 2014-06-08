@@ -1,0 +1,50 @@
+This is BibTeX, Version 0.99d (TeX Live 2012)
+Capacity: max_strings=35307, hash_size=35307, hash_prime=30011
+The top-level auxiliary file: paper-cos518.aux
+The style file: abbrvnat.bst
+Database file #1: local.bib
+Warning--entry type for "sslpulse" isn't style-file defined
+--line 91 of file local.bib
+Warning--empty year in alexa
+You've used 10 entries,
+            2773 wiz_defined-function locations,
+            652 strings with 6202 characters,
+and the built_in function-call counts, 4806 in all, are:
+= -- 440
+> -- 251
+< -- 9
++ -- 85
+- -- 75
+* -- 361
+:= -- 710
+add.period$ -- 32
+call.type$ -- 10
+change.case$ -- 56
+chr.to.int$ -- 10
+cite$ -- 21
+duplicate$ -- 232
+empty$ -- 407
+format.name$ -- 89
+if$ -- 1037
+int.to.chr$ -- 1
+int.to.str$ -- 1
+missing$ -- 7
+newline$ -- 58
+num.names$ -- 40
+pop$ -- 121
+preamble$ -- 1
+purify$ -- 45
+quote$ -- 0
+skip$ -- 190
+stack$ -- 0
+substring$ -- 174
+swap$ -- 44
+text.length$ -- 5
+text.prefix$ -- 0
+top$ -- 0
+type$ -- 110
+warning$ -- 1
+while$ -- 46
+width$ -- 0
+write$ -- 137
+(There were 2 warnings)
