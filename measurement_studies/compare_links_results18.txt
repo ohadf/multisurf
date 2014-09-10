@@ -1,7 +1,0 @@
-The number of sites determined to be safe: 38
-The number of sites determined to be unsafe (there is a diff): 44
-The number of sites determined to give identical responses but no content to compare: 4
-The number of sites determined to give different responses but no content: 2
-The number of sites determined to be HTTPS-only: 10
-The number of sites that gave an error: 2
-****************************************************************************************************

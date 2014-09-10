@@ -1,0 +1,69 @@
+\begin{thebibliography}{10}
+\providecommand{\natexlab}[1]{#1}
+\providecommand{\url}[1]{\texttt{#1}}
+\expandafter\ifx\csname urlstyle\endcsname\relax
+  \providecommand{\doi}[1]{doi: #1}\else
+  \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
+
+\bibitem[{Alexa: The Web Information Company}()]{alexa}
+{Alexa: The Web Information Company}.
+\newblock {Top Sites}.
+\newblock URL \url{http://www.alexa.com/topsites}.
+
+\bibitem[Callegati et~al.(2009)Callegati, Cerroni, and
+  Ramilli]{callegati2009man}
+F.~Callegati, W.~Cerroni, and M.~Ramilli.
+\newblock Man-in-the-middle attack to the https protocol.
+\newblock \emph{Security \& Privacy, IEEE}, 7\penalty0 (1):\penalty0 78--81,
+  2009.
+
+\bibitem[Dingledine et~al.(2004)Dingledine, Mathewson, and
+  Syverson]{dingledine2004tor}
+R.~Dingledine, N.~Mathewson, and P.~Syverson.
+\newblock Tor: The second-generation onion router.
+\newblock Technical report, DTIC Document, 2004.
+
+\bibitem[JIA and XUE(2007)]{jia2007principle}
+J.~JIA and Z.~XUE.
+\newblock The principle and prevention of ssl man-in-the-middle attack [j].
+\newblock \emph{China Information Security}, 4, 2007.
+
+\bibitem[Joshi et~al.(2009)Joshi, Das, and Saha]{joshi2009mitigating}
+Y.~Joshi, D.~Das, and S.~Saha.
+\newblock Mitigating man in the middle attack over secure sockets layer.
+\newblock In \emph{Internet Multimedia Services Architecture and Applications
+  (IMSAA), 2009 IEEE International Conference on}, pages 1--5. IEEE, 2009.
+
+\bibitem[Oppliger et~al.(2006)Oppliger, Hauser, and Basin]{oppliger2006ssl}
+R.~Oppliger, R.~Hauser, and D.~Basin.
+\newblock Ssl/tls session-aware user authentication--or how to effectively
+  thwart the man-in-the-middle.
+\newblock \emph{Computer Communications}, 29\penalty0 (12):\penalty0
+  2238--2246, 2006.
+
+\bibitem[Reis et~al.(2008)Reis, Gribble, Kohno, and Weaver]{reis2008detecting}
+C.~Reis, S.~D. Gribble, T.~Kohno, and N.~C. Weaver.
+\newblock Detecting in-flight page changes with web tripwires.
+\newblock In \emph{NSDI}, volume~8, pages 31--44, 2008.
+
+\bibitem[{TIM Trustworthy Internet Movement}(Retrieved Jan. 2014)]{sslpulse}
+{TIM Trustworthy Internet Movement}.
+\newblock {SSL Pulse}.
+\newblock \url{https://www.trustworthyinternet.org/ssl-pulse/}, Retrieved Jan.
+  2014.
+
+\bibitem[Wendlandt et~al.(2008)Wendlandt, Andersen, and
+  Perrig]{wendlandt2008perspectives}
+D.~Wendlandt, D.~G. Andersen, and A.~Perrig.
+\newblock Perspectives: Improving ssh-style host authentication with multi-path
+  probing.
+\newblock In \emph{USENIX Annual Technical Conference}, pages 321--334, 2008.
+
+\bibitem[Xia and Brustoloni(2005)]{xia2005hardening}
+H.~Xia and J.~C. Brustoloni.
+\newblock Hardening web browsers against man-in-the-middle and eavesdropping
+  attacks.
+\newblock In \emph{Proceedings of the 14th international conference on World
+  Wide Web}, pages 489--498. ACM, 2005.
+
+\end{thebibliography}
