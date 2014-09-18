@@ -35,16 +35,20 @@ class MultiSurfClient(object):
             return result
         elif(self.isCrawl):
             result = self.doMyRequest(url)
+            my_req = self.request
             if(result == util.INVALID_URL_ERR or result == util.HTTPS_ERR):
                 return result
             elif(result != util.RESP_UNSUPP):
                 self.myRespBody = result
                 self.myRespBodyLen = len(self.myRespBody)
                 self.myRespBodyArr = self.myRespBody.splitlines()
-            if self.comp == 3:
-                return self.doProtocol2(peer,port,url,1,peer,port,url,2)
-            else:
-                return self.doProtocol(peer,port,url,1)
+                peerBody = self.doProtocol(peer,port,url,1)
+                return [self.myRespBody, peerBody, my_req]
+            return 0
+            #if self.comp == 3:
+            #    return self.doProtocol2(peer,port,url,1,peer,port,url,2)
+            #else:
+            #    return self.doProtocol(peer,port,url,1)
         else:
             if(len(sys.argv) < (2 + util.NUM_PEERS*2)):
                 print "Usage: python basic_multisurf_client.py <url> <peer1> <peer1 port> <peer2> <peer2 port> etc..."
@@ -72,10 +76,6 @@ class MultiSurfClient(object):
                     self.myRespBodyArr = myRespBody.splitlines()
             else:
                 return None
-
-#to support parser.py
-#respBodies = []
-#respBodies.append(myRespBody)
             portnum = 0
             for peer in trustedPeers:
                 # send the request to all my peers
@@ -271,7 +271,7 @@ class MultiSurfClient(object):
         # respCode should be success code or unsupported code  at this point
         peerRespBody = self.getPeerResp(respCode)
                 #print peerRespBody
-                
+        return peerRespBody
         if(peerRespBody != None):
             peerRespBodyArr = self.processPeerResp(peerRespBody)
             
@@ -363,10 +363,10 @@ class MultiSurfClient(object):
                 #print "peer got identical response. peer status: %d" % self.peerStatus
                 return util.IDENTICAL_RESP
 
-def doCrawl(url,peer,port,compAlgo):
+def doCrawl(url,peer,port):
     #print 'Entry point'
-    client = MultiSurfClient(True,False,compAlgo)
-    #print 'created client'
+    client = MultiSurfClient(True,False,1)
+    print 'created client'
     result = client.main(url,peer,port)
     #print 'got result'
     return result
@@ -382,5 +382,5 @@ def measure_multisurf_latency(url,peer,port,compAlgo):
     return result
 
 if  __name__ == "__main__":
-        client = MultiSurfClient(False)
+        client = MultiSurfClient(False, False, False)
         client.main()
