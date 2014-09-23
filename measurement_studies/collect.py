@@ -7,6 +7,7 @@ import sys
 import csv
 from threading import Thread
 import datetime
+import MySQLdb
 from time import sleep
 import basic_multisurf_client
 
@@ -27,7 +28,7 @@ def get_sites(n):
     return alexa_sites
 
 # x: url, c_id: crawl_id, th_id: thread_id
-def make_req(x, c_id, t, th_id):
+def make_req(x, c_id, th_id):
     crawl_id = c_id
     timestamp = datetime.datetime.utcnow()
     thread_id = th_id
@@ -39,17 +40,25 @@ def make_req(x, c_id, t, th_id):
         request = result[2]
         response_body = result[0]
         peer_body = result[1]
-    # TODO: add stuff to DB
+        write_results_to_db(crawl_id, timestamp, thread_id, url, request, response_body, peer_body)
+
+# writes the results of request to the database
+''' N.B. currently only supports single-peer crawls'''
+def write_results_to_db(crawl_id, timestamp, thread_id, url, request_hdr, response_body, peer_body):
+    db = MySQLdb.connect("128.112.139.195", "crawler", "multisurf crawling", "multisurf")
+    cursor = db.cursor()
+    cursor.execute("insert into crawls (crawl_id, time_stamp, thread_id, url, request, response_body, peer_body) values (%, %, %, %, %, %, %)" % (crawl_id, timestamp, thread_id, url, request_hdr, response_body, peer_body))
+    db.close()
 
 ######## Start script ########
 
-sites = get_sites(sys.argv[4])
+sites = get_sites(sys.argv[3])
 
 # starts a new thread for each site
 count = 1
 for s in sites:
     print s
-    t = Thread(target=make_req, args=(s, sys.argv[1], count, ))
+    t = Thread(target=make_req, args=(s, sys.argv[1], count))
     t.start()
     count += 1
     sleep(float(sys.argv[2]))
