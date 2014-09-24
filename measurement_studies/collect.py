@@ -33,8 +33,10 @@ def make_req(x, c_id, th_id):
     timestamp = datetime.datetime.utcnow()
     thread_id = th_id
     url = x
-    result = basic_multisurf_client.doCrawl(x, 'localhost', 12346)
+    result = basic_multisurf_client.doCrawl(x, 'localhost', 12345)
     if result == 0:
+        print "Something is wrong.  Don't include in database"
+    elif type(result) == int:
         print "Something is wrong.  Don't include in database"
     else:
         request = result[2]
