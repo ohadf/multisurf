@@ -29,7 +29,7 @@ class MultiSurfClient(object):
         self.isLatency = testingLatency
         self.comp = comparison
 
-    def main(self,url=None,peer=None,port=None):
+    def main(self,url=None,peer=None,port=None,peerNum=None):
         if(self.isLatency):
             result = self.doMyRequest(url)
             return result
@@ -42,8 +42,11 @@ class MultiSurfClient(object):
                 self.myRespBody = result
                 self.myRespBodyLen = len(self.myRespBody)
                 self.myRespBodyArr = self.myRespBody.splitlines()
-                peerBody = self.doProtocol(peer,port,url,1)
-                return [self.myRespBody, peerBody, my_req]
+                peerBodyList = []
+                for x in range(0,peerNum):
+                    peerBody = self.doProtocol(peer,port+x,url,1)
+                    peerBodyList.append(peerBody)
+                return [self.myRespBody, my_req]+peerBodyList
             return 0
             #if self.comp == 3:
             #    return self.doProtocol2(peer,port,url,1,peer,port,url,2)
@@ -260,7 +263,12 @@ class MultiSurfClient(object):
 
 # Protocol starts here
     def doProtocol(self,peer,port,url,peerID):
-        respCode = self.sendPeerReq(peer, port, url)
+        try:
+            respCode = self.sendPeerReq(peer, port, url)
+        except Exception:
+            print "EXCEPTION"
+            return 0
+            
         if (respCode == util.COMM_ERR_CODE):
             #print "Peer responded with an error."
             return util.COMM_ERR
@@ -363,22 +371,22 @@ class MultiSurfClient(object):
                 #print "peer got identical response. peer status: %d" % self.peerStatus
                 return util.IDENTICAL_RESP
 
-def doCrawl(url,peer,port):
+def doCrawl(url,peer,port,numPeers):
     #print 'Entry point'
     client = MultiSurfClient(True,False,1)
     print 'created client'
-    result = client.main(url,peer,port)
+    result = client.main(url,peer,port,numPeers)
     #print 'got result'
     return result
 
-def measure_baseline_latency(url,peer,port):
+def measure_baseline_latency(url,peer,port,numPeers):
     client = MultiSurfClient(True,True,0)
-    result = client.main(url,peer,port)
+    result = client.main(url,peer,port,numPeers)
     return result
 
-def measure_multisurf_latency(url,peer,port,compAlgo):
+def measure_multisurf_latency(url,peer,port,compAlgo,numPeers):
     client = MultiSurfClient(True,False,compAlgo)
-    result = client.main(url,peer,port)
+    result = client.main(url,peer,port,numPeers)
     return result
 
 if  __name__ == "__main__":

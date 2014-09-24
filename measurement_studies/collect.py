@@ -1,7 +1,8 @@
 # crawl to gather data about our requests vs peer requests to help with learning algorithm
 
-# usage: (1) python basic_multisurf_peer.py 12345
-#        (2) python collect.py <crawl_id> <time interval between requests in seconds> <# of sites visited>
+# usage: (1) python basic_multisurf_peer.py 12345 (if one peer)
+#            python basic_multisurf_peer.py 12345 ; python basic_multisurf_peer.py 12346 (if two peers)
+#        (2) python collect.py <crawl_id> <time interval between requests in seconds> <# of sites visited> <# of peers>
 
 import sys
 import csv
@@ -33,15 +34,18 @@ def make_req(x, c_id, th_id):
     timestamp = datetime.datetime.utcnow()
     thread_id = th_id
     url = x
-    result = basic_multisurf_client.doCrawl(x, 'localhost', 12345)
+    result = basic_multisurf_client.doCrawl(x, 'localhost', 12345, int(sys.argv[4]))
     if result == 0:
         print "Something is wrong.  Don't include in database"
     elif type(result) == int:
         print "Something is wrong.  Don't include in database"
     else:
-        request = result[2]
+        request = result[1]
         response_body = result[0]
-        peer_body = result[1]
+        peerBodyList = []
+        for x in range(2,len(result)):
+            peer_body = result[x]
+            peerBodyList.append(peer_body)
         write_results_to_db(crawl_id, timestamp, thread_id, url, request, response_body, peer_body)
 
 # writes the results of request to the database
