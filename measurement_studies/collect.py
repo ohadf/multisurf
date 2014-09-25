@@ -46,14 +46,16 @@ def make_req(x, c_id, th_id):
         for x in range(2,len(result)):
             peer_body = result[x]
             peerBodyList.append(peer_body)
-        write_results_to_db(crawl_id, timestamp, thread_id, url, request, response_body, peer_body)
+        write_results_to_db(crawl_id, thread_id, url, request, response_body, peerBodyList)
 
 # writes the results of request to the database
 ''' N.B. currently only supports single-peer crawls'''
-def write_results_to_db(crawl_id, timestamp, thread_id, url, request_hdr, response_body, peer_body):
-    db = MySQLdb.connect("128.112.139.195", "crawler", "multisurf crawling", "multisurf")
+def write_results_to_db(crawl_id, thread_id, url, request_hdr, response_body, peer_body_list):
+    db = MySQLdb.connect("tux.cs.princeton.edu", "melara", "multisurf crawling", "multisurfdb")
     cursor = db.cursor()
-    cursor.execute("insert into crawls (crawl_id, time_stamp, thread_id, url, request, response_body, peer_body) values (%, %, %, %, %, %, %)" % (crawl_id, timestamp, thread_id, url, request_hdr, response_body, peer_body))
+    cursor.execute("insert into client_host (crawl_id, thread_id, url, request, response_body) values (%, %, %, %, %)" % (crawl_id, thread_id, url, request_hdr, response_body))
+    for x in range(0, len(peer_body_list)):
+        cursor.execute("insert into peers (crawl_id, thread_id, peer_id, response_body) values (%, %, %, %, %)" % (crawl_id, thread_id, x, peer_body_list[x]))
     db.close()
 
 ######## Start script ########
