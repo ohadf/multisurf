@@ -1,0 +1,6 @@
+The average number of sites determined to be safe: 7.15
+The average number of sites determined to be unsafe (there is a diff): 76.85
+The average number of sites determined to give identical responses but no content to compare: 4 (all same)
+The average number of sites determined to give different responses but no content: 1.05
+The average number of sites determined to be HTTPS-only: 10.9
+The average number of sites that gave an error: 2.05

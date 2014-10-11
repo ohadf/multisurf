@@ -47,6 +47,21 @@ def make_req(x, c_id, th_id):
             peer_body = result[x]
             peerBodyList.append(peer_body)
         write_results_to_db(crawl_id, thread_id, url, request, response_body, peerBodyList)
+        write_results_to_file(crawl_id, thread_id, url, request, response_body, peerBodyList)
+
+# writes the results of request to files
+def write_results_to_file(crawl_id, thread_id, url, request_hdr, response_body, peer_body_list):
+    f1 = open('/'+str(crawl_id)+'/'+str(thread_id)+'/c_'+url)
+    f1.write(response_body)
+    f1.close()
+    count = 1
+    for p in peer_body_list:
+        f2 = open('/'+str(crawl_id)+'/'+str(thread_id)+'/p'+str(count)+'_'+url)
+        f2.write(p)
+        f2.close()
+    f3 = open('/'+str(crawl_id)+'/'+str(thread_id)+'/request_'+url)
+    f3.write(request_hdr)
+    f3.close()
 
 # writes the results of request to the database
 ''' N.B. currently only supports single-peer crawls'''

@@ -1,0 +1,87 @@
+# crawl to gather data about our requests vs peer requests to help with learning algorithm
+
+# usage: (1) python basic_multisurf_peer.py 12345 (if one peer)
+#            python basic_multisurf_peer.py 12345 ; python basic_multisurf_peer.py 12346 (if two peers)
+#        (2) python collect.py <crawl_id> <time interval between requests in seconds> <# of sites visited> <# of peers>
+
+import sys
+import csv
+from threading import Thread
+import datetime
+import MySQLdb
+from time import sleep
+import basic_multisurf_client
+
+######## Helper functions ########
+
+# get 100 sites from alexa top sites
+def get_sites(n):
+    alexa_sites = []
+    with open('top-1m.csv', 'rb') as f:
+        reader = csv.reader(f)
+        r = list(reader)
+        for item in r:
+            # change to 501 for Alexa 500
+            if item[0] == n:
+                break
+            else:
+                alexa_sites.append("www."+item[1])
+    return alexa_sites
+
+# x: url, c_id: crawl_id, th_id: thread_id
+def make_req(x, c_id, th_id):
+    crawl_id = c_id
+    timestamp = datetime.datetime.utcnow()
+    thread_id = th_id
+    url = x
+    result = basic_multisurf_client.doCrawl(x, 'localhost', 12345, int(sys.argv[4]))
+    if result == 0:
+        print "Something is wrong.  Don't include in database"
+    elif type(result) == int:
+        print "Something is wrong.  Don't include in database"
+    else:
+        request = result[1]
+        response_body = result[0]
+        peerBodyList = []
+        for x in range(2,len(result)):
+            peer_body = result[x]
+            peerBodyList.append(peer_body)
+        write_results_to_db(crawl_id, thread_id, url, request, response_body, peerBodyList)
+        write_results_to_file(crawl_id, thread_id, url, request, response_body, peerBodyList)
+
+# writes the results of request to files
+def write_results_to_file(crawl_id, thread_id, url, request_hdr, response_body, peer_body_list):
+    f1 = open('/'+str(crawl_id)+'/'+str(thread_id)+'/c_'+url)
+    f1.write(response_body)
+    f1.close()
+    count = 1
+    for p in peer_body_list:
+        f2 = open('/'+str(crawl_id)+'/'+str(thread_id)+'/p'+str(count)+'_'+url)
+        f2.write(p)
+        f2.close()
+    f3 = open('/'+str(crawl_id)+'/'+str(thread_id)+'/request_'+url)
+    f3.write(request_hdr)
+    f3.close()
+
+# writes the results of request to the database
+''' N.B. currently only supports single-peer crawls'''
+def write_results_to_db(crawl_id, thread_id, url, request_hdr, response_body, peer_body_list):
+    db = MySQLdb.connect("tux.cs.princeton.edu", "melara", "multisurf crawling", "multisurfdb")
+    cursor = db.cursor()
+    cursor.execute("insert into client_host (crawl_id, thread_id, url, request, response_body) values (%, %, %, %, %)" % (crawl_id, thread_id, url, request_hdr, response_body))
+    for x in range(0, len(peer_body_list)):
+        cursor.execute("insert into peers (crawl_id, thread_id, peer_id, response_body) values (%, %, %, %, %)" % (crawl_id, thread_id, x, peer_body_list[x]))
+    db.close()
+
+######## Start script ########
+
+sites = get_sites(sys.argv[3])
+
+# starts a new thread for each site
+count = 1
+for s in sites:
+    print s
+    t = Thread(target=make_req, args=(s, sys.argv[1], count))
+    t.start()
+    count += 1
+    sleep(float(sys.argv[2]))
