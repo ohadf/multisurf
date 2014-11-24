@@ -69,12 +69,11 @@ def write_results_to_file(crawl_id, thread_id, url, request_hdr, response_body):
 
 ######## Start script ########
 
-password = getpass.getpass()
-
 sites = get_sites(sys.argv[3])
 print "Got sites..."
 
 username = sys.argv[4]
+password = sys.argv[5]
 
 # starts a new thread for each site
 count = 1
