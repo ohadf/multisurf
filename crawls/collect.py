@@ -35,7 +35,7 @@ def get_sites(n):
     return alexa_sites
 
 # x: url, c_id: crawl_id, th_id: thread_id
-def make_req(x, c_id, th_id):
+def make_req(x, c_id, th_id, client_id):
     crawl_id = c_id
     timestamp = datetime.datetime.utcnow()
     thread_id = th_id
@@ -48,7 +48,7 @@ def make_req(x, c_id, th_id):
     else:
         request = result[1]
         response_body = result[0]
-        write_results_to_file(crawl_id, thread_id, url, request, response_body)
+        write_results_to_file(crawl_id, thread_id, url, request, response_body, client_id)
 
 def ssh_helper(cmd):
     client = paramiko.SSHClient()
@@ -61,11 +61,11 @@ def ssh_helper(cmd):
     client.close()
 
 # writes the results of request to files
-def write_results_to_file(crawl_id, thread_id, url, request_hdr, response_body):
+def write_results_to_file(crawl_id, thread_id, url, request_hdr, response_body, client_id):
     print "Starting to write"
     #print '/n/fs/multisurf/body_'+url
-    ssh_helper('echo "'+response_body.encode('base64','strict')+'" > /n/fs/multisurf/'+str(crawl_id)+'_'+str(thread_id)+'_body_'+url)
-    ssh_helper('echo "'+request_hdr.encode('base64','strict')+'" > /n/fs/multisurf/'+str(crawl_id)+'_'+str(thread_id)+'_request_'+url)
+    ssh_helper('echo "'+response_body.encode('base64','strict')+'" > /n/fs/multisurf/'+str(client_id)+'_'+str(crawl_id)+'_body_'+url)
+    ssh_helper('echo "'+request_hdr.encode('base64','strict')+'" > /n/fs/multisurf/'+str(client_id)+'_'+str(crawl_id)+'_request_'+url)
 
 ######## Start script ########
 
@@ -74,12 +74,13 @@ print "Got sites..."
 
 username = sys.argv[4]
 password = sys.argv[5]
+client_id = sys.argv[6]
 
 # starts a new thread for each site
 count = 1
 for s in sites:
     print s
-    t = Thread(target=make_req, args=(s, sys.argv[1], count))
+    t = Thread(target=make_req, args=(s, sys.argv[1], count, client_id))
     t.start()
     count += 1
     sleep(float(sys.argv[2]))
