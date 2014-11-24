@@ -2,7 +2,7 @@
 
 # usage: (1) python basic_multisurf_peer.py 12345 (if one peer)
 #            python basic_multisurf_peer.py 12345 ; python basic_multisurf_peer.py 12346 (if two peers)
-#        (2) python collect.py <crawl_id> <time interval between requests in seconds> <# of sites visited> <# of peers>
+#        (2) python collect.py <crawl_id> <time interval between requests in seconds> <# of sites visited> <username>
 
 import sys
 import csv
@@ -10,21 +10,27 @@ from threading import Thread
 import datetime
 import MySQLdb
 from time import sleep
-import basic_multisurf_client
+import client
+import subprocess
+import paramiko
+import getpass
 
 ######## Helper functions ########
 
 # get 100 sites from alexa top sites
 def get_sites(n):
     alexa_sites = []
+    print "Starting to get sites..."
     with open('top-1m.csv', 'rb') as f:
         reader = csv.reader(f)
         r = list(reader)
+        print "Created reader..."
         for item in r:
             # change to 501 for Alexa 500
             if item[0] == n:
                 break
             else:
+                print "Appending www."+item[1]
                 alexa_sites.append("www."+item[1])
     return alexa_sites
 
@@ -34,7 +40,7 @@ def make_req(x, c_id, th_id):
     timestamp = datetime.datetime.utcnow()
     thread_id = th_id
     url = x
-    result = basic_multisurf_client.doCrawl(x, 'localhost', 12345, int(sys.argv[4]))
+    result = client.doCrawl(x, 'localhost', 12345)
     if result == 0:
         print "Something is wrong.  Don't include in database"
     elif type(result) == int:
@@ -42,40 +48,33 @@ def make_req(x, c_id, th_id):
     else:
         request = result[1]
         response_body = result[0]
-        peerBodyList = []
-        for x in range(2,len(result)):
-            peer_body = result[x]
-            peerBodyList.append(peer_body)
-        write_results_to_db(crawl_id, thread_id, url, request, response_body, peerBodyList)
-        write_results_to_file(crawl_id, thread_id, url, request, response_body, peerBodyList)
+        write_results_to_file(crawl_id, thread_id, url, request, response_body)
+
+def ssh_helper(cmd):
+    client = paramiko.SSHClient()
+    client.load_system_host_keys()
+    client.set_missing_host_key_policy(paramiko.WarningPolicy())
+    print "Trying to connect..."
+    client.connect("tux.cs.princeton.edu", username=username, password=password)
+    stdin, stdout, stderr = client.exec_command(cmd)
+    print "Finished command"
+    client.close()
 
 # writes the results of request to files
-def write_results_to_file(crawl_id, thread_id, url, request_hdr, response_body, peer_body_list):
-    f1 = open('/'+str(crawl_id)+'/'+str(thread_id)+'/c_'+url)
-    f1.write(response_body)
-    f1.close()
-    count = 1
-    for p in peer_body_list:
-        f2 = open('/'+str(crawl_id)+'/'+str(thread_id)+'/p'+str(count)+'_'+url)
-        f2.write(p)
-        f2.close()
-    f3 = open('/'+str(crawl_id)+'/'+str(thread_id)+'/request_'+url)
-    f3.write(request_hdr)
-    f3.close()
-
-# writes the results of request to the database
-''' N.B. currently only supports single-peer crawls'''
-def write_results_to_db(crawl_id, thread_id, url, request_hdr, response_body, peer_body_list):
-    db = MySQLdb.connect("tux.cs.princeton.edu", "melara", "multisurf crawling", "multisurfdb")
-    cursor = db.cursor()
-    cursor.execute("insert into client_host (crawl_id, thread_id, url, request, response_body) values (%, %, %, %, %)" % (crawl_id, thread_id, url, request_hdr, response_body))
-    for x in range(0, len(peer_body_list)):
-        cursor.execute("insert into peers (crawl_id, thread_id, peer_id, response_body) values (%, %, %, %, %)" % (crawl_id, thread_id, x, peer_body_list[x]))
-    db.close()
+def write_results_to_file(crawl_id, thread_id, url, request_hdr, response_body):
+    print "Starting to write"
+    #print '/n/fs/multisurf/body_'+url
+    ssh_helper('echo "'+response_body.encode('base64','strict')+'" > /n/fs/multisurf/'+str(crawl_id)+'_'+str(thread_id)+'_body_'+url)
+    ssh_helper('echo "'+request_hdr.encode('base64','strict')+'" > /n/fs/multisurf/'+str(crawl_id)+'_'+str(thread_id)+'_request_'+url)
 
 ######## Start script ########
 
+password = getpass.getpass()
+
 sites = get_sites(sys.argv[3])
+print "Got sites..."
+
+username = sys.argv[4]
 
 # starts a new thread for each site
 count = 1
