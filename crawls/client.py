@@ -1,10 +1,10 @@
 import httplib
 import util
-import peerlib
 import socket
 import ssl
+import collections
 
-class MultiSurfClient(object):
+class MultiSurfCrawlClient(object):
         
     def __init__(self):
         self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM) 
@@ -35,7 +35,16 @@ class MultiSurfClient(object):
         accept_lang_hdr = 'Accept-Language: '+util.accept_lang_hdr+'\n'
         cookie_hdr = 'Cookie: '+util.cookie_hdr+'\n'
         conn_hdr = 'Connection: '+util.conn_hdr+'\n'
-        return host_hdr+user_agent_hdr+accept_hdr+accept_lang_hdr+cookie_hdr+conn_hdr     
+        return host_hdr+user_agent_hdr+accept_hdr+accept_lang_hdr+cookie_hdr+conn_hdr
+
+    def parseHeaders(request):
+        headers = collections.OrderedDict()
+        for line in request.splitlines():
+            hdr_line = line.split(":")
+            header = hdr_line[0].strip()
+            value = hdr_line[1].strip()
+            headers[header] = value
+        return headers
                 
     def sendRequest(self,rawUrl):
         print "Sending request: "+rawUrl
@@ -55,7 +64,7 @@ class MultiSurfClient(object):
         myConn.endheaders()
         '''
         try:
-            myConn.request("GET", path, "", peerlib.parseHeaders(self.request))
+            myConn.request("GET", path, "", self.parseHeaders(self.request))
             myResp = myConn.getresponse()
             return myResp
         except socket.gaierror:
@@ -127,10 +136,10 @@ class MultiSurfClient(object):
             return result
 
 def doCrawl(url,peer,port):
-    client = MultiSurfClient()
+    client = MultiSurfCrawlClient()
     result = client.main(url,peer,port)
     return result
 
 if  __name__ == "__main__":
-        client = MultiSurfClient()
+        client = MultiSurfCrawlClient()
         client.main()
