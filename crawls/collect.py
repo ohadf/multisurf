@@ -9,7 +9,7 @@ import csv
 from threading import Thread
 import datetime
 import MySQLdb
-from time import sleep, localtime
+import time
 import client
 import subprocess
 import paramiko

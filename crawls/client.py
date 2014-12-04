@@ -37,7 +37,7 @@ class MultiSurfCrawlClient(object):
         conn_hdr = 'Connection: '+util.conn_hdr+'\n'
         return host_hdr+user_agent_hdr+accept_hdr+accept_lang_hdr+cookie_hdr+conn_hdr
 
-    def parseHeaders(request):
+    def parseHeaders(self,request):
         headers = collections.OrderedDict()
         for line in request.splitlines():
             hdr_line = line.split(":")
@@ -64,6 +64,7 @@ class MultiSurfCrawlClient(object):
         myConn.endheaders()
         '''
         try:
+            print self.request
             myConn.request("GET", path, "", self.parseHeaders(self.request))
             myResp = myConn.getresponse()
             return myResp
