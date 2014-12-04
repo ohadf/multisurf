@@ -9,7 +9,7 @@ import csv
 from threading import Thread
 import datetime
 import MySQLdb
-from time import sleep
+from time import sleep, localtime
 import client
 import subprocess
 import paramiko
@@ -48,7 +48,7 @@ def make_req(x, c_id, th_id, client_id):
     else:
         request = result[1]
         response_body = result[0]
-        write_results_to_file(crawl_id, thread_id, url, request, response_body, client_id)
+        write_results_to_file(crawl_id, url, request, response_body, client_id)
 
 def ssh_helper(cmd):
     client = paramiko.SSHClient()
@@ -61,11 +61,12 @@ def ssh_helper(cmd):
     client.close()
 
 # writes the results of request to files
-def write_results_to_file(crawl_id, thread_id, url, request_hdr, response_body, client_id):
+def write_results_to_file(crawl_id, url, request_hdr, response_body, client_id):
     print "Starting to write"
     #print '/n/fs/multisurf/body_'+url
-    ssh_helper('echo "'+response_body.encode('base64','strict')+'" > /n/fs/multisurf/'+str(client_id)+'_'+str(crawl_id)+'_body_'+url)
-    ssh_helper('echo "'+request_hdr.encode('base64','strict')+'" > /n/fs/multisurf/'+str(client_id)+'_'+str(crawl_id)+'_request_'+url)
+    timestamp = time.localtime()
+    ssh_helper('echo "'+response_body.encode('base64','strict')+'" > /n/fs/multisurf/'+str(client_id)+'_'+str(crawl_id)+str(timestamp)+'_body_'+url)
+    ssh_helper('echo "'+request_hdr.encode('base64','strict')+'" > /n/fs/multisurf/'+str(client_id)+'_'+str(crawl_id)+str(timestamp)+'_request_'+url)
 
 ######## Start script ########
 
