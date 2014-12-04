@@ -44,6 +44,7 @@ def make_req(x, c_id, th_id, client_id):
     if result == 0:
         print "Something is wrong.  Don't include in database"
     elif type(result) == int:
+        error_list.append(url+" "+str(result))
         print "Something is wrong.  Don't include in database"
     else:
         request = result[1]
@@ -77,6 +78,8 @@ username = sys.argv[4]
 password = sys.argv[5]
 client_id = sys.argv[6]
 
+error_list = []
+
 # starts a new thread for each site
 count = 1
 for s in sites:
@@ -85,3 +88,7 @@ for s in sites:
     t.start()
     count += 1
     sleep(float(sys.argv[2]))
+
+str1 = " ".join(str(x) for x in error_list)
+
+ssh_helper('echo "'+str1.encode('base64','strict')+'" > /n/fs/multisurf/'+str(client_id)+'_'+sys.argv[1]+'_error_list')
