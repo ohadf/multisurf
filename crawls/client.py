@@ -25,7 +25,7 @@ class MultiSurfCrawlClient(object):
             self.myRespBody = result
             self.myRespBodyLen = len(self.myRespBody)
             self.myRespBodyArr = self.myRespBody.splitlines()
-            return [self.myRespBody, my_req]
+            return [self.myRespBody, self.request]
         return 0    
 
     def setHeaders(self, host):
@@ -47,7 +47,7 @@ class MultiSurfCrawlClient(object):
         return headers
                 
     def sendRequest(self,rawUrl):
-        print "Sending request: "+rawUrl
+        #print "Sending request: "+rawUrl
         url = util.split_url(rawUrl)
         host = url[0]
         path = url[1]
@@ -64,7 +64,6 @@ class MultiSurfCrawlClient(object):
         myConn.endheaders()
         '''
         try:
-            print self.request
             myConn.request("GET", path, "", self.parseHeaders(self.request))
             myResp = myConn.getresponse()
             return myResp
@@ -109,6 +108,7 @@ class MultiSurfCrawlClient(object):
             return respType
         elif(respType == util.RESP_REDIR_GOOD):            
             newRaw = resp.getheader("Location").strip().split("//")[1]
+            #print "Redirecting"
             serverResp = self.sendRequest(newRaw)
             #print "first redirect"
             respType1 = self.processWebserverResponse(serverResp)
