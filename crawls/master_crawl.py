@@ -31,7 +31,7 @@ crawl_id += 1
 thread = threading.Thread(target=start_crawl, args=(crawl_id, 300, 300, user, pwd, client_id))
 thread.start()
 
-# crawl 4: two peers on local machine, 60 seconds between requests, 300 sites (format of args: <crawl_id> <time interval between requests in seconds> <# of sites visited> <# of peers>)
+# crawl 4: two peers on local machine, 600 seconds between requests, 300 sites (format of args: <crawl_id> <time interval between requests in seconds> <# of sites visited> <# of peers>)
 crawl_id += 1
 thread = threading.Thread(target=start_crawl, args=(crawl_id, 600, 300, user, pwd, client_id))
 thread.start()
