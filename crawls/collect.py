@@ -9,7 +9,7 @@ import csv
 from threading import Thread
 import datetime
 import MySQLdb
-import time
+from time import sleep, localtime
 import client
 import subprocess
 import paramiko
@@ -64,7 +64,7 @@ def ssh_helper(cmd):
 def write_results_to_file(crawl_id, url, request_hdr, response_body, client_id):
     print "Starting to write"
     #print '/n/fs/multisurf/body_'+url
-    timestamp = time.localtime()
+    timestamp = localtime()
     ssh_helper('echo "'+response_body.encode('base64','strict')+'" > /n/fs/multisurf/'+str(client_id)+'_'+str(crawl_id)+str(timestamp)+'_body_'+url)
     ssh_helper('echo "'+request_hdr.encode('base64','strict')+'" > /n/fs/multisurf/'+str(client_id)+'_'+str(crawl_id)+str(timestamp)+'_request_'+url)
 
