@@ -7,12 +7,9 @@
 import sys
 import csv
 from threading import Thread
-import MySQLdb
 from time import sleep
 import client
-import subprocess
 import paramiko
-import getpass
 
 ######## Helper functions ########
 

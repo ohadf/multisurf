@@ -1,14 +1,12 @@
 import httplib
 import util
 import socket
-import ssl
 import collections
 
 class MultiSurfCrawlClient(object):
         
     def __init__(self):
         self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM) 
-        self.sslSocket = None
         self.requestLen = 0
         self.request = ''
         self.myRespBody = ''
