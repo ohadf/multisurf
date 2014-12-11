@@ -1,3 +1,3 @@
 #!/bin/bash
-rsync -rz --progress --exclude '*.pyc' --exclude '*~' ./crawls/* princeton_multisurf@planetlab1.csuohio.edu:~/crawls
-rsync -rz --progress run_crawl.sh princeton_multisurf@planetlab1.csuohio.edu:~
+rsync -rz --progress --exclude '*.pyc' --exclude '*~' ./crawls/* princeton_multisurf@$1:~/crawls
+rsync -rz --progress update.sh princeton_multisurf@$1:~
