@@ -43,6 +43,7 @@ def update(node):
 nodes = get_nodes()
 
 for n in nodes:
-    t = Thread(target=update, args=(n,))
-    t.start()
+    update(n)
+    #t = Thread(target=update, args=(n,))
+    #t.start()
     
