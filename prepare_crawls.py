@@ -3,7 +3,7 @@
 import sys
 from subprocess import call
 import paramiko
-from threading import Thread
+from threading import Thread, current_thread
 
 # get list of nodes
 def get_nodes():
@@ -21,29 +21,29 @@ def get_nodes():
     return nodes
             
 # installs python and paramiko on the given node
+# using paramiko transport to read the command outputs on the 
+# remote machine in real-time
 def install(node):
-    client = paramiko.SSHClient()
-    client.load_system_host_keys()
-    client.set_missing_host_key_policy(paramiko.WarningPolicy())
-    #print "Trying to connect..."
-    client.connect(node, username='princeton_multisurf')
-    stdin, stdout, stderr = client.exec_command('chmod 744 update.sh')
-    stdin, stdout, stderr = client.exec_command('./update.sh')
-    print stdout.read()
-    print stderr.read()
-    client.close()
+    trans = paramiko.Transport((node, 22))
+    trans.connect(username='princeton_multisurf')
+    session = trans.open_channel('update session')
+    session.exec_command('sudo chmod 744 update.sh')
+    session.exec_command('./update.sh')
+    while session.recv_ready():
+        temp = session.recv(1024)
+        print temp
+    trans.close()
 
 #rsyncs the crawl files and installs python on the given node
 def update(node):
-    print "Update to node "+node+" started."
+    print current_thread()+": Update to node "+node+" started."
     call(['./deploy_crawler.sh', node])
     install(node)
-    print "Successfully updated "+node
+    print current_thread()": Successfully updated "+node
 
 nodes = get_nodes()
 
 for n in nodes:
-    update(n)
-    #t = Thread(target=update, args=(n,))
-    #t.start()
+    t = Thread(target=update, args=(n,))
+    t.start()
     
