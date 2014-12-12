@@ -25,12 +25,37 @@ def crawl(node):
     client.set_missing_host_key_policy(paramiko.WarningPolicy())
     #print "Trying to connect..."
     client.connect(node, username='princeton_multisurf')
-    stdin, stdout, stderr = client.exec_command('cd ./crawls')
-    stdin, stdout, stderr = client.exec_command('python master_crawl.py melara '+node)
-    stdin.write('password\n')
-    stdin.flush()
-    print stdout.read()
-    print stderr.read()
+
+    channel = client.invoke_shell()
+    channel.send('cd ./crawls\n')
+    out = ''
+    while not out.endswith('$ '):
+        resp = channel.recv(1024)
+        out += resp
+
+    # Reading the output back seems to be the only way to 
+    # make sure the update finishes
+    channel.send('python master_crawl.py melara '+node+'\n')
+    out = ''
+    # looks silly, but we can't assume upper- or lower-case P
+    while not out.endswith('assword: '): 
+        resp = channel.recv(1024)
+        out += resp
+
+    # replace with your password here.
+    # DON'T FORGET TO REMOVE YOUR PASSWORD WHEN YOU'RE DONE
+    channel.send('password\n')
+
+    # looks silly, but we can't assume upper- or lower-case P
+    while not out.endswith('$: '): 
+        resp = channel.recv(1024)
+        out += resp
+
+    # write the crawler's output to a log file, just for sanity
+    f = open(node+'_crawl.log', 'wb')
+    f.write(out)
+    f.close()
+
     client.close()
 
 nodes = get_nodes()

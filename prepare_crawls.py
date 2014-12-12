@@ -21,25 +21,44 @@ def get_nodes():
     return nodes
             
 # installs python and paramiko on the given node
-# using paramiko transport to read the command outputs on the 
-# remote machine in real-time
+
 def install(node):
-    trans = paramiko.Transport((node, 22))
-    trans.connect(username='princeton_multisurf')
-    session = trans.open_channel('update session')
-    session.exec_command('sudo chmod 744 update.sh')
-    session.exec_command('./update.sh')
-    while session.recv_ready():
-        temp = session.recv(1024)
-        print temp
-    trans.close()
+    client = paramiko.SSHClient()
+    client.load_system_host_keys()
+    client.set_missing_host_key_policy(paramiko.WarningPolicy())
+    client.connect(node, username='princeton_multisurf')
+    
+    channel = client.invoke_shell()
+    channel.send('sudo chmod 744 update.sh\n')
+    out = ''
+    while not out.endswith('$ '):
+        resp = channel.recv(1024)
+        out += resp
+
+    # Reading the output back seems to be the only way to 
+    # make sure the update finishes
+    channel.send('./update.sh\n')
+    out = ''
+    while not out.endswith('$ '):
+        resp = channel.recv(1024)
+        out += resp
+
+    #add the newline to the node output
+    out += '\n'
+
+    # write the update's output to a log file, just for sanity
+    f = open(node+'_update.log', 'wb')
+    f.write(out)
+    f.close()
+
+    client.close()
 
 #rsyncs the crawl files and installs python on the given node
 def update(node):
-    print current_thread()+": Update to node "+node+" started."
+    print current_thread().name+": Update to node "+node+" started."
     call(['./deploy_crawler.sh', node])
     install(node)
-    print current_thread()": Successfully updated "+node
+    print current_thread().name+": Finished update of node "+node+"\nCheck this node's update.log file to make sure there were no errors."
 
 nodes = get_nodes()
 
