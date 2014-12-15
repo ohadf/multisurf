@@ -42,6 +42,14 @@ accept_lang_hdr = 'en-US,en;q=0.5'
 cookie_hdr =  'Marcela'
 conn_hdr = 'keep-alive'
 
+# Crawl IDs
+ONE_EACH_SEC = 1
+ONE_EACH_MIN = 2
+ONE_EACH_5MIN = 3
+ONE_EACH_10MIN = 4
+ONCE_PER_5MIN = 5
+ONCE_PER_10MIN = 6
+
 #split a url into its host and path portions
 def split_url(url):
     split = []

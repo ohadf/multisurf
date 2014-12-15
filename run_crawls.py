@@ -15,11 +15,13 @@ def get_nodes():
         else:
             count += 1
             nodes.append(node.strip())
-    print "Updating "+str(count)+" nodes"
+    print "Collecting site data from "+str(count)+" nodes"
     return nodes
             
+#usage: python run_crawls <username> <run_name>
+
 # runs the crawl on the given node
-def crawl(node):
+def remote_crawl(node):
     client = paramiko.SSHClient()
     client.load_system_host_keys()
     client.set_missing_host_key_policy(paramiko.WarningPolicy())
@@ -35,16 +37,8 @@ def crawl(node):
 
     # Reading the output back seems to be the only way to 
     # make sure the update finishes
-    channel.send('python master_crawl.py melara '+node+'\n')
+    channel.send('python master_crawl.py '+username+' '+run_name+' '+node+'\n')
     out = ''
-    # looks silly, but we can't assume upper- or lower-case P
-    while not out.endswith('assword: '): 
-        resp = channel.recv(1024)
-        out += resp
-
-    # replace with your password here.
-    # DON'T FORGET TO REMOVE YOUR PASSWORD WHEN YOU'RE DONE
-    channel.send('password\n')
 
     # looks silly, but we can't assume upper- or lower-case P
     while not out.endswith('$: '): 
@@ -59,6 +53,13 @@ def crawl(node):
     client.close()
 
 nodes = get_nodes()
+username = sys.argv[1]
+run_name = sys.argv[2]
+
+def crawl(node):
+    print current_thread().name+": Collection from node "+node+" started."
+    remote_crawl(node)
+    print current_thread().name+": Finished colelction from node "+node
 
 for n in nodes:
     t = Thread(target=crawl, args=(n,))

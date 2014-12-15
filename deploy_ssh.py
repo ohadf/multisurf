@@ -49,9 +49,9 @@ def mkdir_ssh(node):
 def deploy(node):
     print current_thread().name+": Deploying SSH key to node "+node+"..."
     mkdir_ssh(node)
-    call(["scp", "/home/marcela/id_rsa", "princeton_multisurf@"+node+":~/.ssh"])
-    call(["scp", "/home/marcela/id_rsa.pub", "princeton_multisurf@"+node+":~/.ssh"])
-    call(["scp", "/home/marcela/known_hosts", "princeton_multisurf@"+node+":~/.ssh"])
+    call(["scp", "./ssh/id_rsa", "princeton_multisurf@"+node+":~/.ssh"])
+    call(["scp", "./ssh/id_rsa.pub", "princeton_multisurf@"+node+":~/.ssh"])
+    call(["scp", "./ssh/known_hosts", "princeton_multisurf@"+node+":~/.ssh"])
     print current_thread().name+": Done deploying to "+node
 
 nodes = get_nodes()

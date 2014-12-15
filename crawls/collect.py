@@ -31,10 +31,10 @@ def get_sites(n):
     return alexa_sites
 
 # x: url, c_id: crawl_id, th_id: thread_id
-def make_req(x, c_id, v_id, client_id):
+def make_req(u, c_id, v_id, client_id, run):
     crawl_id = c_id
     visit_id = v_id
-    url = x
+    url = u
     result = client.doCrawl(x, 'localhost', 12345)
     if result == 0:
         pass
@@ -45,19 +45,26 @@ def make_req(x, c_id, v_id, client_id):
     else:
         request = result[1]
         response_body = result[0]
-        write_results_to_file(client_id, crawl_id, visit_id, url, request, response_body)
+        write_results_to_file(run, client_id, crawl_id, visit_id, url, request, response_body)
 
 # writes the results of request to files
-def write_results_to_file(client_id, crawl_id, visit_id, url, request_hdr, response_body):
+def write_results_to_file(run, client_id, crawl_id, visit_id, url, request_hdr, response_body):
     client = paramiko.SSHClient()
     client.load_system_host_keys()
     client.set_missing_host_key_policy(paramiko.WarningPolicy())
     #print "Trying to connect..."
     client.connect("tux.cs.princeton.edu", username=username)
     sftp = client.open_sftp()
+
+    # create the directory for the new run if it doesn't exist
+    try:
+        sftp.chdir('/n/fs/multisurf/'+run)  # Test if remote_path exists
+    except IOError:
+        sftp.mkdir('/n/fs/multisurf/'+run)  # Create remote_path
+
     #print "Starting to write"
-    f1 = sftp.open('/n/fs/multisurf/'+str(client_id)+'_'+str(crawl_id)+'_'+str(visit_id)+'_request_'+url, 'w+')
-    f2 = sftp.open('/n/fs/multisurf/'+str(client_id)+'_'+str(crawl_id)+'_'+str(visit_id)+'_body_'+url, 'w+')
+    f1 = sftp.open('/n/fs/multisurf/'+run+'/'+str(client_id)+'_'+str(crawl_id)+'_'+str(visit_id)+'_request_'+url, 'w+')
+    f2 = sftp.open('/n/fs/multisurf/'+run+'/'+str(client_id)+'_'+str(crawl_id)+'_'+str(visit_id)+'_body_'+url, 'w+')
     encoded_hdr = request_hdr.encode('base64','strict')
     f1.write(encoded_hdr.replace('\n', ''))
     encoded_body = response_body.encode('base64','strict')
@@ -68,7 +75,7 @@ def write_results_to_file(client_id, crawl_id, visit_id, url, request_hdr, respo
     #print "Finished command"
     client.close()
     
-def write_error_results(crawl_id, client_id, visit_id):
+def write_error_results(run, crawl_id, client_id, visit_id):
     str1 = '\n'.join(str(x) for x in error_list)
     client = paramiko.SSHClient()
     client.load_system_host_keys()
@@ -76,8 +83,15 @@ def write_error_results(crawl_id, client_id, visit_id):
     #print "Writing error list"
     client.connect("tux.cs.princeton.edu", username=username)
     sftp = client.open_sftp()
+
+    # create the directory for the new run if it doesn't exist
+    try:
+        sftp.chdir('/n/fs/multisurf/'+run)  # Test if remote_path exists
+    except IOError:
+        sftp.mkdir('/n/fs/multisurf/'+run)  # Create remote_path
+
     #print "Starting to write"
-    f = sftp.open('/n/fs/multisurf/run1/'+str(client_id)+'_'+str(crawl_id)+'_'+str(visit_id)+'_error_list', 'w+')
+    f = sftp.open('/n/fs/multisurf/'+run+'/'+str(client_id)+'_'+str(crawl_id)+'_'+str(visit_id)+'_error_list', 'w+')
     encoded = str1.encode('base64','strict')
     f.write(encoded.replace('\n', ''))
     #stdin, stdout, stderr = client.exec_command(cmd)
@@ -90,10 +104,12 @@ def write_error_results(crawl_id, client_id, visit_id):
 sites = get_sites(sys.argv[3])
 #print "Got sites..."
 
+crawl_id = sys.argv[1]
+timeout = sys.argv[2]
 username = sys.argv[4]
-password = sys.argv[5]
+run_name = sys.argv[5]
 client_id = sys.argv[6]
-n = sys.arvg[7]
+freq = sys.arvg[7]
 
 error_list = []
 
@@ -101,9 +117,9 @@ error_list = []
 count = 1
 for s in sites:
     #print s
-    for i in range(0, n):
-        t = Thread(target=make_req, args=(s, sys.argv[1], i, client_id, timestam))
+    for i in range(0, freq):
+        t = Thread(target=make_req, args=(s, crawl_id, i, client_id, run_name))
         t.start()
-        sleep(float(sys.argv[2]))
+        sleep(float(timeout))
 
-write_error_results(sys.argv[1], client_id, timestamp)
+write_error_results(crawl_id, client_id)
