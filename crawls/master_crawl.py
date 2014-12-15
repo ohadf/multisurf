@@ -27,10 +27,10 @@ run_name = sys.argv[2]
 
 # crawl 1: 300 seconds between requests, 300 sites (format of args: <crawl_id> <time interval between requests in seconds> <# of sites visited> <# of peers>)
 freq = 15
-thread = threading.Thread(target=start_crawl, args=(ONCE_PER_5MIN, 300, 300, user, run_name, client_id, freq))
+thread = threading.Thread(target=start_crawl, args=(util.ONCE_PER_5MIN, 300, 300, user, run_name, client_id, freq))
 thread.start()
 
 # crawl 2: two peers on local machine, 600 seconds between requests, 300 sites (format of args: <crawl_id> <time interval between requests in seconds> <# of sites visited> <# of peers>)
 freq = 5
-thread = threading.Thread(target=start_crawl, args=(ONCE_PER_10MIN, 600, 300, user, run_name, client_id, freq))
+thread = threading.Thread(target=start_crawl, args=(util.ONCE_PER_10MIN, 600, 300, user, run_name, client_id, freq))
 thread.start()
