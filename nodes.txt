@@ -1,5 +1,5 @@
 planetlab2.csee.usf.edu
-#planetlab1.csuohio.edu	
+planetlab1.csuohio.edu	
 planet-lab4.uba.ar
 plonk.cs.uwaterloo.ca
 planetlab-1.scie.uestc.edu.cn
