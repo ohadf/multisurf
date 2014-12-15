@@ -11,3 +11,11 @@ planetlab1.dojima.wide.ad.jp
 ##uoepl1.essex.ac.uk
 ##planetlab2.mta.ac.il
 ##planetlab2.research.nicta.com.au
+planetlab1.c3sl.ufpr.br
+planetlab3.cesnet.cz
+planetlab01.dis.unina.it
+netapp6.cs.kookmin.ac.kr
+onelab1.warsaw.rd.tp.pl
+planetlab-1.imperial.ac.uk
+planetlab-2.imag.fr
+planetlab2.ionio.gr
