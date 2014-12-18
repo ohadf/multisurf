@@ -8,6 +8,7 @@ from time import mktime
 import sys
 import getpass
 import datetime
+import util
 
 def start_crawl(a,b,c,d,e,f,g):
     os.system("python collect.py "+str(a)+" "+str(b)+" "+str(c)+" "+str(d)+" "+str(e)+" "+str(f)+" "+str(g))
@@ -19,29 +20,17 @@ def get_current_time_millis():
     millis = long(mktime(now.timetuple())*1000 + (now.microsecond/1000))
     return millis
 
-crawl_id = 1
-client_id = sys.argv[2]
+client_id = sys.argv[3]
 
 user = sys.argv[1]
-pwd = getpass.getpass()
+run_name = sys.argv[2]
 
-timestamp = get_current_time_millis()
-
-# crawl 1: 1 second time interval, 300 sites
-thread = threading.Thread(target=start_crawl, args=(crawl_id, 1, 300, user, pwd, client_id, timestamp))
+# crawl 1: 300 seconds between requests, 300 sites (format of args: <crawl_id> <time interval between requests in seconds> <# of sites visited> <# of peers>)
+freq = 15
+thread = threading.Thread(target=start_crawl, args=(util.ONCE_PER_5MIN, 300, 300, user, run_name, client_id, freq))
 thread.start()
 
-# crawl 2: 60 seconds between requests, 300 sites (format of args: <crawl_id> <time interval between requests in seconds> <# of sites visited> <# of peers>)
-crawl_id += 1
-thread = threading.Thread(target=start_crawl, args=(crawl_id, 60, 300, user, pwd, client_id, timestamp))
-thread.start()
-
-# crawl 3: 300 seconds between requests, 300 sites (format of args: <crawl_id> <time interval between requests in seconds> <# of sites visited> <# of peers>)
-crawl_id += 1
-thread = threading.Thread(target=start_crawl, args=(crawl_id, 300, 300, user, pwd, client_id, timestamp))
-thread.start()
-
-# crawl 4: two peers on local machine, 600 seconds between requests, 300 sites (format of args: <crawl_id> <time interval between requests in seconds> <# of sites visited> <# of peers>)
-crawl_id += 1
-thread = threading.Thread(target=start_crawl, args=(crawl_id, 600, 300, user, pwd, client_id, timestamp))
+# crawl 2: two peers on local machine, 600 seconds between requests, 300 sites (format of args: <crawl_id> <time interval between requests in seconds> <# of sites visited> <# of peers>)
+freq = 5
+thread = threading.Thread(target=start_crawl, args=(util.ONCE_PER_10MIN, 600, 300, user, run_name, client_id, freq))
 thread.start()
