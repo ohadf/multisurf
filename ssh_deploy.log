@@ -1,0 +1,19 @@
+Last login: Thu Dec 18 16:35:28 2014 from nat-oitwireless-outside-vapornet3-e-6.princeton.edu
+mkdir .ssh
+[princeton_multisurf@plab1 ~]$ mkdir .ssh
+[princeton_multisurf@plab1 ~]$ 
+Last login: Mon Dec 15 21:30:01 2014 from nat-oitwireless-outside-vapornet3-n-217.princeton.edu
+mkdir .ssh
+[princeton_multisurf@planetlab1 ~]$ mkdir .ssh
+[princeton_multisurf@planetlab1 ~]$ 
+Last login: Mon Dec 15 23:10:03 2014 from nat-oitwireless-outside-vapornet3-n-217.princeton.edu
+mkdir .ssh
+[princeton_multisurf@stella ~]$ mkdir .ssh
+mkdir: cannot create directory `.ssh': File exists
+[princeton_multisurf@stella ~]$ 
+Last login: Fri Dec 19 00:19:00 2014 from nat-oitwireless-outside-vapornet3-a-221.princeton.edu
+[princeton_multisurf@planetlab2 ~]$ 
+Last login: Fri Dec 19 00:20:55 2014 from nat-oitwireless-outside-vapornet3-a-221.princeton.edu
+mkdir .ssh
+[princeton_multisurf@planetlab1 ~]$ mkdir .ssh
+[princeton_multisurf@planetlab1 ~]$ 

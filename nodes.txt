@@ -4,10 +4,10 @@ planet-lab4.uba.ar
 plonk.cs.uwaterloo.ca
 planetlab-1.scie.uestc.edu.cn
 planetlab1.c3sl.ufpr.br
-planetlab3.cesnet.cz
 planetlab01.dis.unina.it
 netapp6.cs.kookmin.ac.kr
-#onelab1.warsaw.rd.tp.pl
-#planetlab-1.imperial.ac.uk
-#planetlab-2.imag.fr
-#planetlab2.ionio.gr
+planetlab1.mini.pw.edu.pl
+stella.planetlab.ntua.gr
+plab1.cs.msu.ru
+planetlab2.cs.otago.ac.nz
+planetlab1.nrl.eecs.qmul.ac.uk
