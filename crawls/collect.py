@@ -72,7 +72,7 @@ def write_results_to_file(run, client_id, crawl_id, visit_id, url, request_hdr, 
     #stdin, stdout, stderr = client.exec_command(cmd)
     f1.close()
     f2.close()
-    print run+": Wrote file for "+str(client_id)+" "+str(crawl_id)+" "+str(visit_id)+" "+url
+    #print run+": Wrote file for "+str(client_id)+" "+str(crawl_id)+" "+str(visit_id)+" "+url
     client.close()
     
 def write_error_results(run, crawl_id, client_id, visit_id):
