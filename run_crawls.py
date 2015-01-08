@@ -40,8 +40,7 @@ def remote_crawl(node):
     channel.send('python master_crawl.py '+username+' '+run_name+' '+node+'\n')
     out = ''
 
-    # looks silly, but we can't assume upper- or lower-case P
-    while not out.endswith('$: '): 
+    while not out.endswith('$ '): 
         resp = channel.recv(1024)
         out += resp
 

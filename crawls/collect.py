@@ -35,7 +35,7 @@ def make_req(u, c_id, v_id, client_id, run):
     crawl_id = c_id
     visit_id = v_id
     url = u
-    result = client.doCrawl(x, 'localhost', 12345)
+    result = client.doCrawl(url, 'localhost', 12345)
     if result == 0:
         pass
         #print "Something is wrong.  Don't include in database"
@@ -72,7 +72,7 @@ def write_results_to_file(run, client_id, crawl_id, visit_id, url, request_hdr, 
     #stdin, stdout, stderr = client.exec_command(cmd)
     f1.close()
     f2.close()
-    #print "Finished command"
+    print run+": Wrote file for "+str(client_id)+" "+str(crawl_id)+" "+str(visit_id)+" "+url
     client.close()
     
 def write_error_results(run, crawl_id, client_id, visit_id):
@@ -109,7 +109,7 @@ timeout = sys.argv[2]
 username = sys.argv[4]
 run_name = sys.argv[5]
 client_id = sys.argv[6]
-freq = sys.argv[7]
+freq = int(sys.argv[7])
 
 error_list = []
 
