@@ -2,7 +2,7 @@
 
 import sys
 import paramiko
-from threading import Thread
+from threading import Thread, current_thread
 
 # get list of nodes
 def get_nodes():
@@ -18,7 +18,7 @@ def get_nodes():
     print "Collecting site data from "+str(count)+" nodes"
     return nodes
             
-#usage: python run_crawls <username> <run_name>
+#usage: python run_crawls.py <username> <run_name>
 
 # runs the crawl on the given node
 def remote_crawl(node):

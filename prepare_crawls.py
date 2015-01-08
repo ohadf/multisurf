@@ -1,4 +1,4 @@
-# installs python on a list of planet lab nodes
+# installs python and deploys the crawler scripts on a list of planet lab nodes
 
 import sys
 from subprocess import call

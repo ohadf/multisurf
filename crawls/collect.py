@@ -109,7 +109,7 @@ timeout = sys.argv[2]
 username = sys.argv[4]
 run_name = sys.argv[5]
 client_id = sys.argv[6]
-freq = sys.arvg[7]
+freq = sys.argv[7]
 
 error_list = []
 
