@@ -8,4 +8,4 @@ Running web data collection:
         t.start()
 ```
 - Transfer modified run_crawls.py to CS server if the script was modified locally
-- Run: python run_crawls.py <run name>
+- Run: ```python run_crawls.py <run name>```
