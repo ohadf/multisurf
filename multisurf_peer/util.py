@@ -1,11 +1,11 @@
-#Utility constants and functions for multisurf client
+#Utility constants and functions for multisurf
 #define the number of peers
 NUM_PEERS = 1
 
 #lengths are in bytes
 #Protocol constants
 PREAMBLE_LEN = 7
-PREAMBLE = "GET OMB"
+PREAMBLE = "GET OMB" # "get on my behalf"
 
 #Lengths in bytes of the length values
 URL_LEN = 10
@@ -35,6 +35,21 @@ RESP_HASBODY = 10
 RESP_REDIR_HTTPS = 11
 RESP_REDIR_GOOD = 12
 RESP_UNSUPP = 13
+
+# headers for version 0 HTTP requests
+user_agent_hdr = 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:25.0) Gecko/20100101 Firefox/25.0'
+accept_hdr = 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'
+accept_lang_hdr = 'en-US,en;q=0.5'
+cookie_hdr =  'Marcela'
+conn_hdr = 'keep-alive'
+
+# Crawl IDs
+ONE_EACH_SEC = 1
+ONE_EACH_MIN = 2
+ONE_EACH_5MIN = 3
+ONE_EACH_10MIN = 4
+ONCE_PER_5MIN = 5
+ONCE_PER_10MIN = 6
 
 #split a url into its host and path portions
 def split_url(url):

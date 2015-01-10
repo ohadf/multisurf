@@ -1,11 +1,11 @@
 #Utility constants and functions for multisurf
 #define the number of peers
-NUM_PEERS = 2
+NUM_PEERS = 1
 
 #lengths are in bytes
 #Protocol constants
 PREAMBLE_LEN = 7
-PREAMBLE = "GET OMB"
+PREAMBLE = "GET OMB" # "get on my behalf"
 
 #Lengths in bytes of the length values
 URL_LEN = 10
@@ -42,6 +42,14 @@ accept_hdr = 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'
 accept_lang_hdr = 'en-US,en;q=0.5'
 cookie_hdr =  'Marcela'
 conn_hdr = 'keep-alive'
+
+# Crawl IDs
+ONE_EACH_SEC = 1
+ONE_EACH_MIN = 2
+ONE_EACH_5MIN = 3
+ONE_EACH_10MIN = 4
+ONCE_PER_5MIN = 5
+ONCE_PER_10MIN = 6
 
 #split a url into its host and path portions
 def split_url(url):
