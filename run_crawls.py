@@ -21,7 +21,7 @@ def get_nodes():
 #usage: python run_crawls.py <username> <run_name>
 
 # runs the crawl on the given node
-def remote_crawl(node):
+def remote_crawl(crawl_id, timeout, num_sites, node, freq):
     client = paramiko.SSHClient()
     client.load_system_host_keys()
     client.set_missing_host_key_policy(paramiko.WarningPolicy())
@@ -37,7 +37,7 @@ def remote_crawl(node):
 
     # Reading the output back seems to be the only way to 
     # make sure the update finishes
-    channel.send('python master_crawl.py '+username+' '+run_name+' '+node+'\n')
+    channel.send('python collect.py '+str(crawl_id)+' '+str(timeout)+' '+str(num_sites)+' '+run_name+' '+node+' '+str(freq)+'\n')
     out = ''
 
     while not out.endswith('$ '): 
@@ -50,17 +50,19 @@ def remote_crawl(node):
     f.close()
 
     client.close()
+    print "Finished crawl type "+str(crawl_id)+" on node "+node
 
 nodes = get_nodes()
-username = sys.argv[1]
-run_name = sys.argv[2]
+run_name = sys.argv[1]
 
-def crawl(node):
-    print current_thread().name+": Collection from node "+node+" started."
-    remote_crawl(node)
-    print current_thread().name+": Finished colelction from node "+node
-
+# this code replaces master_crawl.py on the remote host
+# call remote_crawl with appropriate params, look at util.py in crawls dir for crawl id
 for n in nodes:
-    t = Thread(target=crawl, args=(n,))
-    t.start()
+    # crawl 1: 300 seconds between requests, 300 sites
+    t1 = Thread(target=remote_crawl, args=(5, 300, 300, n, 15))
+    t1.start()
+
+    # crawl 2: 600 seconds between requests, 300 sites
+    t2 = Thread(target=remote_crawl, args=(6, 600, 300, n, 5))
+    t2.start()
     
