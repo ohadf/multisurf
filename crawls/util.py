@@ -5,7 +5,7 @@ NUM_PEERS = 1
 #lengths are in bytes
 #Protocol constants
 PREAMBLE_LEN = 7
-PREAMBLE = "GET OMB"
+PREAMBLE = "GET OMB" # "get on my behalf"
 
 #Lengths in bytes of the length values
 URL_LEN = 10
@@ -28,6 +28,7 @@ HTTPS_ERR = 3
 DIFF_RESP_ERR = 4
 INVALID_URL_ERR = 5
 IDENTICAL_RESP = 6
+GOT_BODY = 7
 
 # Response codes post-processing webserver response
 RESP_HASBODY = 10
@@ -59,6 +60,12 @@ def split_url(url):
     else:
         split = [url, "/"]
     return split
+
+#strip off the protocol portion of a url
+def get_raw(url):
+    split = []
+    split = url.split('://')
+    return split[1]
 
 #pad the length of the url up to URL_LEN
 def pad_length(length,isRespBody=False):

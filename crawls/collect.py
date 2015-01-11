@@ -30,41 +30,35 @@ def get_sites(n):
                 alexa_sites.append("www."+item[1])
     return alexa_sites
 
-# x: url, c_id: crawl_id, th_id: thread_id
-def make_req(u, c_id, v_id, client_id, run):
-    crawl_id = c_id
-    visit_id = v_id
-    url = u
-    result = client.doCrawl(x, 'localhost', 12345)
-    if result == 0:
-        pass
-        #print "Something is wrong.  Don't include in database"
-    elif type(result) == int:
-        error_list.append(url+" "+str(result))
-        #print "Something is wrong.  Don't include in database"
-    else:
-        request = result[1]
-        response_body = result[0]
-        write_results_to_file(run, client_id, crawl_id, visit_id, url, request, response_body)
+# visit the <url> <freq> times in <timeout> intervals
+def make_req(url, crawl_id, client_id, run, freq, timeout):
+    for i in range (0, freq):
+        result = client.doCrawl(url, 'localhost', 12345)
+        if result == 0:
+            pass
+            #print "Something is wrong.  Don't include in database"
+        elif type(result) == int:
+            error_list.append(url+" "+str(result))
+            #print "Something is wrong.  Don't include in database"
+        else:
+            request = result[1]
+            response_body = result[0]
+            write_results_to_file(run, client_id, crawl_id, i, url, request, response_body)
+        sleep(float(timeout))
 
-# writes the results of request to files
+# writes the results of request to local files
+# cron job on cs server grabs these and deletes them
 def write_results_to_file(run, client_id, crawl_id, visit_id, url, request_hdr, response_body):
-    client = paramiko.SSHClient()
-    client.load_system_host_keys()
-    client.set_missing_host_key_policy(paramiko.WarningPolicy())
-    #print "Trying to connect..."
-    client.connect("tux.cs.princeton.edu", username=username)
-    sftp = client.open_sftp()
 
-    # create the directory for the new run if it doesn't exist
-    try:
-        sftp.chdir('/n/fs/multisurf/'+run)  # Test if remote_path exists
-    except IOError:
-        sftp.mkdir('/n/fs/multisurf/'+run)  # Create remote_path
+    fullpath = '/home/princeton_multisurf/'+run
+
+    # ensure the run directory exists
+    if not os.path.exists(fullpath):
+        os.makedirs(fullpath)
 
     #print "Starting to write"
-    f1 = sftp.open('/n/fs/multisurf/'+run+'/'+str(client_id)+'_'+str(crawl_id)+'_'+str(visit_id)+'_request_'+url, 'w+')
-    f2 = sftp.open('/n/fs/multisurf/'+run+'/'+str(client_id)+'_'+str(crawl_id)+'_'+str(visit_id)+'_body_'+url, 'w+')
+    f1 = open(fullpath+'/'+str(client_id)+'_'+str(crawl_id)+'_'+str(visit_id)+'_request_'+url, 'w+')
+    f2 = open(fullpath+'/'+str(client_id)+'_'+str(crawl_id)+'_'+str(visit_id)+'_body_'+url, 'w+')
     encoded_hdr = request_hdr.encode('base64','strict')
     f1.write(encoded_hdr.replace('\n', ''))
     encoded_body = response_body.encode('base64','strict')
@@ -72,32 +66,24 @@ def write_results_to_file(run, client_id, crawl_id, visit_id, url, request_hdr, 
     #stdin, stdout, stderr = client.exec_command(cmd)
     f1.close()
     f2.close()
-    #print "Finished command"
-    client.close()
+    print run+": Wrote file for "+str(client_id)+" "+str(crawl_id)+" "+str(visit_id)+" "+url
     
 def write_error_results(run, crawl_id, client_id, visit_id):
     str1 = '\n'.join(str(x) for x in error_list)
-    client = paramiko.SSHClient()
-    client.load_system_host_keys()
-    client.set_missing_host_key_policy(paramiko.WarningPolicy())
-    #print "Writing error list"
-    client.connect("tux.cs.princeton.edu", username=username)
-    sftp = client.open_sftp()
+    
+    fullpath = '/home/princeton_multisurf/'+run
 
-    # create the directory for the new run if it doesn't exist
-    try:
-        sftp.chdir('/n/fs/multisurf/'+run)  # Test if remote_path exists
-    except IOError:
-        sftp.mkdir('/n/fs/multisurf/'+run)  # Create remote_path
+    # ensure the run directory exists
+    if not os.path.exists(fullpath):
+        os.makedirs(fullpath)
 
     #print "Starting to write"
-    f = sftp.open('/n/fs/multisurf/'+run+'/'+str(client_id)+'_'+str(crawl_id)+'_'+str(visit_id)+'_error_list', 'w+')
+    f = open(fullpath+'/'+str(client_id)+'_'+str(crawl_id)+'_'+str(visit_id)+'_error_list', 'w+')
     encoded = str1.encode('base64','strict')
     f.write(encoded.replace('\n', ''))
     #stdin, stdout, stderr = client.exec_command(cmd)
     f.close()
     #print "Finished command"
-    client.close()
 
 ######## Start script ########
 
@@ -106,10 +92,9 @@ sites = get_sites(sys.argv[3])
 
 crawl_id = sys.argv[1]
 timeout = sys.argv[2]
-username = sys.argv[4]
-run_name = sys.argv[5]
-client_id = sys.argv[6]
-freq = sys.arvg[7]
+run_name = sys.argv[4]
+client_id = sys.argv[5]
+freq = int(sys.argv[6])
 
 error_list = []
 
@@ -117,9 +102,8 @@ error_list = []
 count = 1
 for s in sites:
     #print s
-    for i in range(0, freq):
-        t = Thread(target=make_req, args=(s, crawl_id, i, client_id, run_name))
+        t = Thread(target=make_req, args=(s, crawl_id, client_id, run_name, 
+                                          freq, timeout))
         t.start()
-        sleep(float(timeout))
 
 write_error_results(crawl_id, client_id)
