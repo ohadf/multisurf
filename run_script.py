@@ -5,6 +5,10 @@ from subprocess import call
 import paramiko
 from threading import Thread, current_thread
 
+# get the name of the script to run
+flag = str(argv[1])
+script = str(argv[2])
+
 # get list of nodes
 def get_nodes():
     nodes = []
@@ -20,16 +24,16 @@ def get_nodes():
     print "Updating "+str(count)+" nodes"
     return nodes
             
-# installs python and paramiko on the given node
-
-def install(node):
+# runs the given script on the remote node
+def run_script_remote(node):
+    print current_thread().name+": Execution of "+script+".sh on node "+node+" started."
     client = paramiko.SSHClient()
     client.load_system_host_keys()
     client.set_missing_host_key_policy(paramiko.WarningPolicy())
     client.connect(node, username='princeton_multisurf')
     
     channel = client.invoke_shell()
-    channel.send('sudo chmod 744 update.sh\n')
+    channel.send('sudo chmod 744 '+script+'.sh\n')
     out = ''
     while not out.endswith('$ '):
         resp = channel.recv(1024)
@@ -37,7 +41,7 @@ def install(node):
 
     # Reading the output back seems to be the only way to 
     # make sure the update finishes
-    channel.send('./update.sh\n')
+    channel.send('./'+script+'.sh\n')
     out = ''
     while not out.endswith('$ '):
         resp = channel.recv(1024)
@@ -47,22 +51,26 @@ def install(node):
     out += '\n'
 
     # write the update's output to a log file, just for sanity
-    f = open(node+'_update.log', 'wb')
+    f = open(node+'_'+script+'.log', 'wb')
     f.write(out)
     f.close()
 
     client.close()
-
-#rsyncs the crawl files and installs python on the given node
-def update(node):
+    print current_thread().name+": Finished on node "+node+"\nCheck this node's script log file to make sure there were no errors."   
+    
+# run the given script locally, assumes the script takes the specific node as an arg
+def run_script_local(node):
     print current_thread().name+": Update to node "+node+" started."
-    call(['./deploy_crawler.sh', node])
-    install(node)
-    print current_thread().name+": Finished update of node "+node+"\nCheck this node's update.log file to make sure there were no errors."
+    call(['./'+script+'.sh', node])
+    print current_thread().name+": Finished update of node "+node 
 
 nodes = get_nodes()
 
 for n in nodes:
-    t = Thread(target=update, args=(n,))
-    t.start()
+    if (flag == '-l'):
+        t = Thread(target=run_script_local, args=(n,))
+        t.start()
+    elif (flag == '-r'):
+        t = Thread(target=run_script_remote, args=(n,))
+        t.start()
     

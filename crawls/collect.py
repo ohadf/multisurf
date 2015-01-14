@@ -50,7 +50,7 @@ def make_req(url, crawl_id, client_id, run, freq, timeout):
 # cron job on cs server grabs these and deletes them
 def write_results_to_file(run, client_id, crawl_id, visit_id, url, request_hdr, response_body):
 
-    fullpath = '/home/princeton_multisurf/'+run
+    fullpath = '/home/princeton_multisurf/crawl_data/'+run
 
     # ensure the run directory exists
     if not os.path.exists(fullpath):
