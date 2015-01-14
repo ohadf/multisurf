@@ -22,7 +22,6 @@ Running web data collection:
 - Specify each crawl in *run_crawls.py* as follows:
 ```
 t = Thread(target=remote_crawl, args=(<crawl ID from util.py>, <interval>, <num sites>, n, <num visits>))
-
 t.start()
 ```
 
