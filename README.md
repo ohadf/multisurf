@@ -1,24 +1,24 @@
 Here are instructions for collecting web data on a set of PlanetLab nodes, from setting them up with the necessary software to running the data collection on the cycles servers.
 
-##Managing the PlanetLab nodes
+#Managing the PlanetLab nodes
 
 The following tasks are all performed on a set of PlanetLab nodes specified
 in *nodes.txt*. This list contains the hostnames of all nodes (one per line)
 to be included in a given task. To exclude a node from the task add the 
 "#" symbol at the beginning of the corresponding line in *nodes.txt*.
 
-#Preparing nodes for the web data collection:
+##Preparing nodes for the web data collection:
 - Run: ```python run_script.py -l deploy_updater```
 - Run: ```python run_script.py -r update```
 - Check whether Python2.7 is installed
 - If not, run: ```python run_script.py -r install_python```
 
-#Deploying the crawler (must do this if the crawler software has been modified):
+##Deploying the crawler (must do this if the crawler software has been modified):
 - Run: ```python run_script.py -l deploy_crawler```
 
-##Collecting data on the Cycles servers
+#Collecting data on the Cycles servers
 
-#Setting up the web data collection:
+##Setting up the web data collection:
 - Specify each crawl in *run_crawls.py* as follows:
 ```
 t = Thread(target=remote_crawl, args=(<crawl ID from util.py>, <interval>, <num sites>, n, <num visits>))
@@ -26,6 +26,6 @@ t.start()
 ```
 - Copy the files necessary for the crawls to your home directory on cycles: ```./setup_cycles.sh <username>```
 
-#Running web data collection:
+##Running web data collection:
 - Run the cron job: ```crontab cron.txt```
 - Start the crawl: ```python run_crawls.py <run name>```
