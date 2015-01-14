@@ -7,6 +7,7 @@ to be included in a given task. To exclude a node from the task add the
 "#" symbol at the beginning of the corresponding line in *nodes.txt*.
 
 Preparing the PlanetLab nodes for the web data collection:
+- Run: ```python run_script.py -l deploy_updater```
 - Run: ```python run_script.py -r update```
 - Check whether Python2.7 is installed
 - If not, run: ```python run_script.py -r install_python```

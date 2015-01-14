@@ -6,8 +6,8 @@ import paramiko
 from threading import Thread, current_thread
 
 # get the name of the script to run
-flag = str(argv[1])
-script = str(argv[2])
+flag = str(sys.argv[1])
+script = str(sys.argv[2])
 
 # get list of nodes
 def get_nodes():
