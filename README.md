@@ -28,4 +28,8 @@ t.start()
 
 ##Running web data collection:
 - Run the cron job: ```crontab cron.txt```
-- Start the crawl: ```python run_crawls.py <run name>```
+- Open a new screen terminal: ```screen```
+- Start the crawl (w/o email notification): ```python run_crawls.py <run name>```
+- Start the crawl w/ email notification: ```python run_crawl.py <run name>; mail -s "Multisurf Crawl Done" <username>@cs.princeton.edu < /dev/null```
+- After crawl has started, detach the screen window: ```Crtl-A d``` .It is now safe to logout of cycles.
+- To check on progress: ssh back into cycles and type ```screen -r```
