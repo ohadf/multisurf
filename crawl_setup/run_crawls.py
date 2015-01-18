@@ -25,7 +25,7 @@ def remote_crawl(crawl_id, timeout, num_sites, node, freq):
     client = paramiko.SSHClient()
     client.load_system_host_keys()
     client.set_missing_host_key_policy(paramiko.WarningPolicy())
-    #print "Trying to connect..."
+    print "Starting crawl type "+str(crawl_id)+" on node "+node
     client.connect(node, username='princeton_multisurf')
 
     channel = client.invoke_shell()
