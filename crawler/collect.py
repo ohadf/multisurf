@@ -5,6 +5,7 @@
 #        (2) python collect.py <crawl_id> <time interval between requests in seconds> <# of sites visited> <username>
 
 import sys
+import os
 import csv
 from threading import Thread
 from time import sleep
@@ -38,7 +39,8 @@ def make_req(url, crawl_id, client_id, run, freq, timeout):
             pass
             #print "Something is wrong.  Don't include in database"
         elif type(result) == int:
-            error_list.append(url+" "+str(result))
+            error = url+" "+str(i)+" "+str(result)
+            write_error_results(run, crawl_id, client_id, error)
             #print "Something is wrong.  Don't include in database"
         else:
             request = result[1]
@@ -68,9 +70,10 @@ def write_results_to_file(run, client_id, crawl_id, visit_id, url, request_hdr, 
     f2.close()
     print run+": Wrote file for "+str(client_id)+" "+str(crawl_id)+" "+str(visit_id)+" "+url
     
-def write_error_results(run, crawl_id, client_id, visit_id):
-    str1 = '\n'.join(str(x) for x in error_list)
-    
+def write_error_results(run, crawl_id, client_id, error):
+    #str1 = '\n'.join(str(x) for x in error_list)
+    str1 = error
+
     fullpath = '/home/princeton_multisurf/'+run
 
     # ensure the run directory exists
@@ -78,12 +81,14 @@ def write_error_results(run, crawl_id, client_id, visit_id):
         os.makedirs(fullpath)
 
     #print "Starting to write"
-    f = open(fullpath+'/'+str(client_id)+'_'+str(crawl_id)+'_'+str(visit_id)+'_error_list', 'w+')
-    encoded = str1.encode('base64','strict')
-    f.write(encoded.replace('\n', ''))
+    f = open(fullpath+'/'+str(client_id)+'_'+str(crawl_id)+'_error_list', 'a+')
+    #encoded = str1.encode('base64','strict')
+    #f.write(encoded.replace('\n', ''))
+    f.write(str1+'\n')
     #stdin, stdout, stderr = client.exec_command(cmd)
     f.close()
-    #print "Finished command"
+    #error_list = [] # reset error list
+    print run+": Wrote error file for "+str(client_id)+" "+str(crawl_id)
 
 ######## Start script ########
 
@@ -96,8 +101,6 @@ run_name = sys.argv[4]
 client_id = sys.argv[5]
 freq = int(sys.argv[6])
 
-error_list = []
-
 # starts a new thread for each site
 count = 1
 for s in sites:
@@ -105,5 +108,3 @@ for s in sites:
         t = Thread(target=make_req, args=(s, crawl_id, client_id, run_name, 
                                           freq, timeout))
         t.start()
-
-write_error_results(crawl_id, client_id)
