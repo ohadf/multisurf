@@ -13,21 +13,21 @@ def get_nodes():
     count = 0
     for node in f:
         if node.startswith('#'):
-            print node.strip()
+            print (node.strip())
         else:
             count += 1
             nodes.append(node.strip())
-    print "Updating "+str(count)+" nodes"
+    print ("Updating "+str(count)+" nodes")
     return nodes
 
 #scps the crawl files to cycles
 def scp(node):
-    print current_thread().name+": scp-ing file from node "+node+"..."
+    print (current_thread().name+": scp-ing file from node "+node+"...")
     call(["scp -r", "princeton_multisurf@"+node+":~/crawls/", "/n/fs/multisurf/"])
-    print current_thread().name+": Done scp-ing from node "+node
-    print current_thread().name+": deleting files from node "+node
+    print (current_thread().name+": Done scp-ing from node "+node)
+    print (current_thread().name+": deleting files from node "+node)
     delete_files(node)
-    print current_thread().name+": Done deleting files from node "+node
+    print (current_thread().name+": Done deleting files from node "+node)
 
 # deletes all files in the crawls folder on a planetlab node
 def delete_files(node):

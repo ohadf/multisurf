@@ -11,11 +11,11 @@ def get_nodes():
     count = 0
     for node in f:
         if node.startswith('#'):
-            print node.strip()
+            print(node.strip())
         else:
             count += 1
             nodes.append(node.strip())
-    print "Collecting site data from "+str(count)+" nodes"
+    print("Collecting site data from "+str(count)+" nodes")
     return nodes
             
 #usage: python run_crawls.py <username> <run_name>
@@ -25,7 +25,7 @@ def remote_crawl(crawl_id, timeout, num_sites, node, freq):
     client = paramiko.SSHClient()
     client.load_system_host_keys()
     client.set_missing_host_key_policy(paramiko.WarningPolicy())
-    print "Starting crawl type "+str(crawl_id)+" on node "+node
+    print ("Starting crawl type "+str(crawl_id)+" on node "+node)
     client.connect(node, username='princeton_multisurf')
 
     channel = client.invoke_shell()
@@ -50,7 +50,7 @@ def remote_crawl(crawl_id, timeout, num_sites, node, freq):
     f.close()
 
     client.close()
-    print "Finished crawl type "+str(crawl_id)+" on node "+node
+    print ("Finished crawl type "+str(crawl_id)+" on node "+node)
 
 nodes = get_nodes()
 run_name = sys.argv[1]
