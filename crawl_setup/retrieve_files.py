@@ -23,7 +23,7 @@ def get_nodes():
 #scps the crawl files to cycles
 def scp(node):
     print (current_thread().name+": scp-ing file from node "+node+"...")
-    call(["scp -r", "princeton_multisurf@"+node+":~/crawls/", "/n/fs/multisurf/"])
+    call(["scp -r", "princeton_multisurf@"+node+":~/crawl_data/", "/n/fs/multisurf/"])
     print (current_thread().name+": Done scp-ing from node "+node)
     print (current_thread().name+": deleting files from node "+node)
     delete_files(node)
@@ -37,7 +37,7 @@ def delete_files(node):
     client.connect(node, username='princeton_multisurf')
     
     channel = client.invoke_shell()
-    channel.send('rm -rf ~/crawls/\n')
+    channel.send('rm -rf ~/crawl_data/\n')
     out = ''
     while not out.endswith('$ '):
         resp = channel.recv(1024)
