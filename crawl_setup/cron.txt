@@ -1,1 +1,1 @@
-* * * * * /usr/bin/python3.3 ~/retrieve_files.py
+0 */6 * * * /usr/bin/python3.3 ~/retrieve_files.py
