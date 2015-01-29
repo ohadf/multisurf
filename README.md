@@ -35,3 +35,7 @@ t.start()
 - Start the crawl w/ email notification: ```python run_crawl.py <run name>; mail -s "Multisurf Crawl Done" <username>@cs.princeton.edu < /dev/null```
 - After crawl has started, detach the screen window: ```Crtl-A d``` .It is now safe to logout of cycles.
 - To check on progress: ssh back into cycles and type ```screen -r```
+
+##Wrapping up the web data collection:
+- Remove the cronjob: ```crontab -r```
+- Delete the screen terminal: From within the running terminal run ```Ctrl-a k``` or ```Cmd-a k``` on a Mac, and type "yes"
