@@ -9,7 +9,7 @@ from threading import Thread, current_thread
 def get_nodes():
     nodes = []
     #print "Starting to get sites..."
-    f = open('nodes.txt', 'rb')
+    f = open('nodes.txt', 'r')
     count = 0
     for node in f:
         if node.startswith('#'):
@@ -23,7 +23,7 @@ def get_nodes():
 #scps the crawl files to cycles
 def scp(node):
     print (current_thread().name+": scp-ing file from node "+node+"...")
-    call(["scp -r", "princeton_multisurf@"+node+":~/crawl_data/", "/n/fs/multisurf/"])
+    call(["scp", "-r", "princeton_multisurf@"+node+":~/crawl_data/", "/n/fs/multisurf/"])
     print (current_thread().name+": Done scp-ing from node "+node)
     print (current_thread().name+": deleting files from node "+node)
     delete_files(node)
@@ -41,7 +41,7 @@ def delete_files(node):
     out = ''
     while not out.endswith('$ '):
         resp = channel.recv(1024)
-        out += resp
+        out += str(resp)
 
     #add the newline to the node output
     out += '\n'
@@ -55,7 +55,7 @@ def delete_files(node):
 
 
 nodes = get_nodes()
-print "retrieved nodes..."
+print("retrieved nodes...")
 for n in nodes:
     t = Thread(target=scp, args=(n,))
     t.start()
