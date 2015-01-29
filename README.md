@@ -27,8 +27,10 @@ t.start()
 - Copy the files necessary for the crawls to your home directory on cycles: ```./setup_cycles.sh <username>```
 
 ##Running web data collection:
-- Run the cron job: ```crontab cron.txt```
+- Install paramiko if you have not already: ```pip install --user paramiko```
 - Open a new screen terminal: ```screen```
+- Change the Python path to find paramiko: ```export PYTHONPATH=/u/<username>/.local/lib/python3.3/site-packages```
+- Run the cron job: ```crontab cron.txt```
 - Start the crawl (w/o email notification): ```python run_crawls.py <run name>```
 - Start the crawl w/ email notification: ```python run_crawl.py <run name>; mail -s "Multisurf Crawl Done" <username>@cs.princeton.edu < /dev/null```
 - After crawl has started, detach the screen window: ```Crtl-A d``` .It is now safe to logout of cycles.
