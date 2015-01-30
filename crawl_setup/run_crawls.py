@@ -7,7 +7,7 @@ from threading import Thread, current_thread
 # get list of nodes
 def get_nodes():
     nodes = []
-    f = open('nodes.txt', 'rb')
+    f = open('nodes.txt', 'r')
     count = 0
     for node in f:
         if node.startswith('#'):
@@ -33,7 +33,7 @@ def remote_crawl(crawl_id, timeout, num_sites, node, freq):
     out = ''
     while not out.endswith('$ '):
         resp = channel.recv(1024)
-        out += resp
+        out += str(resp)
 
     # Reading the output back seems to be the only way to 
     # make sure the update finishes
@@ -42,7 +42,7 @@ def remote_crawl(crawl_id, timeout, num_sites, node, freq):
 
     while not out.endswith('$ '): 
         resp = channel.recv(1024)
-        out += resp
+        out += str(resp)
 
     # write the crawler's output to a log file, just for sanity
     f = open(node+'_crawl.log', 'wb')
