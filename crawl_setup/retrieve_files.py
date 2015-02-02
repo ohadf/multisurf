@@ -56,5 +56,6 @@ def delete_files(node):
 
 nodes = get_nodes()
 for n in nodes:
-    scp(n)
+    t1 = Thread(target=scp, args=(n,))
+    t1.start()
     
