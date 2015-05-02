@@ -1,10 +1,10 @@
 # comparison algorithms
 
-import sys
-import re
-import httplib
+#import sys
+#import re
+#import httplib
 from bs4 import BeautifulSoup
-import codecs
+#import codecs
 
 def longest_matching_slice(a, a0, a1, b, b0, b1):
     sa, sb, n = a0, b0, 0
@@ -41,11 +41,11 @@ def print_diff(a, b):
         for line in a[ia:sa]:
             diff_lines.append("-" + line)
             is_diff = True
-            print "-" + line
+            #print "-" + line
         for line in b[ib:sb]:
             diff_lines.append("+" + line)
             is_diff = True
-            print "+" + line
+            #print "+" + line
         for line in a[sa:sa+n]:
             diff_lines.append(" " + line)
             #print " " + line
@@ -72,24 +72,24 @@ def count_scripts(l1, l2):
     return [len(s1), len(s2)]
 
 def get_diff(l1, l2):
-    print_diff(l1, l2)
+    return print_diff(l1, l2)
 
-def line_by_line(l1, l2):
-    soup1 = BeautifulSoup(l1)
-    soup2 = BeautifulSoup(l2)
-    prettyHTML1 = soup1.prettify()
-    prettyHTML2 = soup2.prettify()
-    f = open('/tmp/prettyHTML1.txt', 'w')
-    f.write(prettyHTML1.encode('ascii', 'ignore'))
-    f.close()
-    f2 = open('/tmp/prettyHTML2.txt', 'w')
-    f2.write(prettyHTML2.encode('ascii', 'ignore'))
-    f2.close()
+def line_by_line(data1, data2):
+    #soup1 = BeautifulSoup(l1)
+    #soup2 = BeautifulSoup(l2)
+    #prettyHTML1 = soup1.prettify()
+    #prettyHTML2 = soup2.prettify()
+    #f = open('/tmp/prettyHTML1.txt', 'w')
+    #f.write(prettyHTML1.encode('ascii', 'ignore'))
+    #f.close()
+    #f2 = open('/tmp/prettyHTML2.txt', 'w')
+    #f2.write(prettyHTML2.encode('ascii', 'ignore'))
+    #f2.close()
     
-    f3 = open('prettyHTML1.txt', 'r')
-    data1 = f3.read()
-    f4 = open('prettyHTML2.txt', 'r')
-    data2 = f4.read()
+    #f3 = open('prettyHTML1.txt', 'r')
+    #data1 = f3.read()
+    #f4 = open('prettyHTML2.txt', 'r')
+    #data2 = f4.read()
     for line in range (0, min(len(data1), len(data2))):
         if data1[line] != data2[line]:
             return False
@@ -109,21 +109,29 @@ def compare_links(l1,l2):
         l2_links.append(link3.get('href'))
     for link4 in soup2.find_all('img'):
         l2_links.append(link4.get('src'))
-    return [set(l1_links), set(l2_links)]
+    #print len(set(l1_links))
+    #print len(set(l2_links))
+    #return [set(l1_links), set(l2_links)]
+    return [(set(l1_links) == set(l2_links)), (len(set(l1_links)) == len(set(l2_links)))]
 
 def compare_with_two_peers(l1,l2,l3):
-    c1 = line_by_line(l1,l2)
-    c2 = line_by_line(l1,l3)
-    c3 = line_by_line(l2,l3)
+    [c1, x] = get_diff(l1,l2)
+    [c2, y] = get_diff(l1,l3)
+    [c3, z] = get_diff(l2,l3)
     if (c1 and c2 and c3):
+        print "Safe"
         return True
     elif (not c1) and c3:
+        print "Suspect"
         return False
     elif (not c2) and c3:
+        print "Suspect"
         return False
     elif (not c1) and (not c2) and (not c3):
+        print "Safe"
         return True
     else:
+        print "Suspect"
         return False
     #if l1 == l2 == l3:
     #    return 0
@@ -135,6 +143,11 @@ def compare_with_two_peers(l1,l2,l3):
     #            return 2
     #        elif (not parse_lines1[i] == parse_lines2[i]) and (not parse_lines1[i] == parse_lines3[i]) and (not parse_lines2[i] == parse_lines3[i]):
     #            return 3
+
+def num_lines(a,b):
+    #print len(a)
+    #print len(b)
+    return len(a) == len(b)
 
 def multiple_comparisons(l1,l2):
     [s1,s2] = count_scripts(l1,l2)
@@ -173,19 +186,28 @@ def multiple_comparisons(l1,l2):
 
 #print "*****************************************"
 
-#f1 = open('client.txt','r')
-#f2 = open('peer.txt', 'r')
+#f1 = open('netapp6.cs.kookmin.ac.kr_6_4_body_www.yelp.com','r')
+#f2 = open('plab1.cs.msu.ru_6_4_body_www.yelp.com', 'r')
+#f3 = open('planetlab-1.scie.uestc.edu.cn_6_4_body_www.yelp.com', 'r')
 
-#line_by_line(f1.read(), f2.read())
+# planetlab3.cesnet.cz_6_4_body_www.yelp.com
 
-#print "*****************************************"
+#resp1 = f1.read().decode('base64','strict')
+#resp2 = f2.read().decode('base64', 'strict')
+#resp3 = f3.read().decode('base64', 'strict')
 
-#get_diff(resp1, resp2)
+#resp1_split = resp1.split("\n")
+#resp2_split = resp2.split("\n")
+#resp3_split = resp3.split("\n")
 
-#print "******************************************"
+# number of lines
+#num_lines(resp1_split, resp2_split)
 
-#compare_links(respMsg1,respMsg2)
+# diff
+#get_diff(resp1_split, resp2_split)
 
-#compare_with_two_peers(respMsg1,respMsg2,respMsg3)
+# tags/urls
+#compare_links(resp1,resp2)
 
-#multiple_comparisons(respMsg1,respMsg2)
+# multiple peers
+#compare_with_two_peers(resp1,resp2,resp3)
