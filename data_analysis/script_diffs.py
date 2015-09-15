@@ -4,7 +4,9 @@ import sys
 import os.path
 import csv
 import json
+import bs4
 from bs4 import BeautifulSoup
+import base64
 
 # spatial comparison:
 # want to scrape the scripts from each response body
@@ -14,7 +16,7 @@ from bs4 import BeautifulSoup
 def get_sites(n="301"):
     alexa_sites = []
     #print "Starting to get sites..."
-    with open('top-1m.csv', 'rb') as f:
+    with open('top-1m.csv', 'r') as f:
         reader = csv.reader(f)
         r = list(reader)
         #print "Created reader..."
@@ -39,6 +41,17 @@ def get_nodes():
     print("Getting script data from "+str(count)+" nodes")
     return nodes
 
+
+# extracts the string value within each script tag and converts it to ascii
+def extract_script_strs (scripts):
+    script_strs = []
+
+    for script in scripts:
+        script_str = str(script.string)
+        script_strs.append(script_str)
+
+    return script_strs
+
 # read in all of the bodies for a given crawl and trial ID
 # and scrape all of the scripts
 def read_bodies_for_crawl (sites, nodes, run, crawl_id, trial_id):
@@ -55,25 +68,23 @@ def read_bodies_for_crawl (sites, nodes, run, crawl_id, trial_id):
             fname = node+"_"+str(crawl_id)+"_"+str(trial_id)+"_"+"body_"+site
 
             if os.path.isfile("/n/fs/multisurf/"+run+"/"+fname):
-                print("scraping")
                 # get the entire response body
                 f = open("/n/fs/multisurf/"+run+"/"+fname)
-                body = f.read().decode('base64','strict')
+                body = base64.b64decode(f.read())
                 f.close()
                 # and scrape all of the scripts
-                soup = BeautifulSoup(body)
-                site_scripts[node] = soup.find_all('script')
-
+                soup = BeautifulSoup(body, "html.parser")
+                site_scripts[node] = extract_script_strs(soup.find_all('script'))
         scripts[site] = site_scripts
     return scripts
 
 # now we compare each script for each site for each node
 def compare_scripts (scripts):
-    scripts_diff = dict()
+    scripts_diff = {}
     # loop over all keys (i.e. sites) in the scripts dict
     for site in scripts:
         site_scripts = scripts[site]
-        site_scripts_diff = dict()
+        site_scripts_diff = {}
         
         if len(site_scripts) == 0:
             scripts_diff[site] = "No scripts found"
@@ -81,7 +92,7 @@ def compare_scripts (scripts):
             # now we compare each node with each other
             for node1 in site_scripts:
                 scripts_list1 = set(site_scripts[node1])
-                node1_diff = site_scripts_diff[node1] = dict()
+                node1_diff = site_scripts_diff[node1] = {}
                 
                 for node2 in site_scripts :
                     # we don't want to compare ourselves with ourselves
@@ -99,7 +110,7 @@ def compare_scripts (scripts):
 ''' Here's where the main script starts '''
 
 if len(sys.argv) < 6 :
-    print "Usage: python script_diffs <run_name> <crawl_id> <trial_id> <output filename> [num_sites]"
+    print("Usage: python script_diffs <run_name> <crawl_id> <trial_id> <output filename> [num_sites]")
     exit()
 
 run_name = sys.argv[1]
@@ -113,7 +124,8 @@ script_diffs = compare_scripts(scripts)
 
 out = open("/n/fs/multisurf/"+outfile, 'w+')
 # print pretty JSON
-out.write(json.dumps(script_diffs, sort_keys=True, indent=4, separators=(",", ": ")))
+json.dump(script_diffs, out, sort_keys=True, indent=4, separators=(",", ":"))
+out.write("\n")
 out.close()
 
                     
