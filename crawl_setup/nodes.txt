@@ -1,13 +1,8 @@
-planetlab2.csee.usf.edu
-planetlab1.csuohio.edu	
-planet-lab4.uba.ar
-#plonk.cs.uwaterloo.ca
-#planetlab-1.scie.uestc.edu.cn
-#planetlab1.c3sl.ufpr.br
-#planetlab01.dis.unina.it
-#netapp6.cs.kookmin.ac.kr
-#planetlab1.mini.pw.edu.pl
-#stella.planetlab.ntua.gr
-#plab1.cs.msu.ru
-planetlab2.cs.otago.ac.nz
-#planetlab1.nrl.eecs.qmul.ac.uk
+planetlab2.csee.usf.edu, USF
+planetlab1.csuohio.edu, OHIO
+planet-lab4.uba.ar, ARG
+planetlab-1.scie.uestc.edu.cn, CHN
+netapp6.cs.kookmin.ac.kr, KOR
+plab1.cs.msu.ru, RUS
+planetlab3.cesnet.cz, CZE
+planetlab1.c3sl.ufpr.br, BRA

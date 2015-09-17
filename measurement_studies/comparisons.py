@@ -1,10 +1,6 @@
 # comparison algorithms
 
-#import sys
-#import re
-#import httplib
 from bs4 import BeautifulSoup
-#import codecs
 
 def longest_matching_slice(a, a0, a1, b, b0, b1):
     sa, sb, n = a0, b0, 0
