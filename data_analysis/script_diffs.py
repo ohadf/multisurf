@@ -19,7 +19,7 @@ from collections import OrderedDict
 def get_sites(n="301"):
     alexa_sites = []
     #print "Starting to get sites..."
-    with open('top-1m.csv', 'r') as f:
+    with open('/n/fs/multisurf/top-1m.csv', 'r') as f:
         reader = csv.reader(f)
         r = list(reader)
         #print "Created reader..."
