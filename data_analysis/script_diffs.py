@@ -126,13 +126,18 @@ def check_equal(iterator):
 def remove_all_same_script_nums (nums, num_sites, nodes):
     nums_cleaned = nums
 
+    to_delete_indices = []
+
     # for each element (corresponding to each site) in each node's 
     # create a list of numbers so we can compare all elements for equality directly
     for i in range(0, num_sites):
+        # since we would actively shrink the length of the lists if we delete on the spot
+        # let's collect all of the indices that need to be deleted a priori and then remove
+        # all at once
+
         nums_for_site = []
         for node, code in nodes.items():
             num_list = nums_cleaned[code]
-            print(i)
             nums_for_site.append(num_list[i])
 
         # now check if all elements are identical
@@ -140,10 +145,15 @@ def remove_all_same_script_nums (nums, num_sites, nodes):
 
         if are_identical:
             # they are so this will be a redundant row in our table
-            # remove this row from each mapping in the nums dict
-            for key in nums:
-                num_list = nums_cleaned[key]
-                del num_list[i]
+            # so mark this index to be removed from all lists
+            to_delete_indices.append(i)
+ 
+    # now remove all indices in reverse order to we shrink the list from
+    # back to front
+    for i in reversed(to_delete_indices):
+        for key in nums_cleaned:
+            num_list = nums_cleaned[key]
+            del num_list[i]
 
     return nums_cleaned
 
