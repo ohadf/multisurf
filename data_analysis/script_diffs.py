@@ -7,7 +7,7 @@ import json
 import bs4
 from bs4 import BeautifulSoup
 import base64
-import difflib
+from difflib import SequenceMatcher
 from tabulate import tabulate
 from collections import OrderedDict
 
@@ -164,38 +164,57 @@ def remove_all_same_script_nums (nums, num_sites, nodes):
             if node1 != node2:
   '''              
 
-# now we compare each script for each site for each node
-def compare_scripts (scripts_all_sites_all_nodes):
-    scripts_diff = {}
+# get the unique scripts seen by each site
+def get_unique_scripts (scripts_all_sites_all_nodes, nodes):
+    unique_scripts = OrderedDict()
     # loop over all keys (i.e. sites) in the scripts dict
     for site in scripts_all_sites_all_nodes:
         scripts_for_site = scripts_all_sites_all_nodes[site]
-        site_scripts_diff = {}
         
-        if len(scripts_for_site) == 0:
-            scripts_diff[site] = "No scripts found"
-        else:
-            # now we compare each node with each other
-            for node1 in scripts_for_site:
-                (node1_num_scripts, node1_scripts) = scripts_for_site[node1]
-                node1_diff = site_scripts_diff[node1] = {}
-                
-                for node2 in scripts_for_site:
-                    # we don't want to compare ourselves with ourselves
-                    if node1 != node2:
-                        print("Comparing "+node1+" and "+node2+" for site "+site)
-                        
-                        (node2_num_scripts, node2_scripts) = scripts_for_site[node2]
-                        
-                        # this records all scripts that are in node2's view not in node1's list
-                        diff = list((set(node2_scripts)).difference(set(node1_scripts)))
+        # now we compare each node with each other
+        unique_scripts_for_site = OrderedDict()
+        for node1 in nodes:
+            node1_code = nodes[node1]
+            node1_script_info = scripts_for_site.get(node1)
 
-                        node1_diff[node2] = diff
-            scripts_diff[site] = site_scripts_diff
-    return scripts_diff
+            # build a similarity mapping for each script seen by this node
+            sim_map = OrderedDict()
+            if node1_script_info != None and node1_script_info[0] > 0:
+                for script1 in node1_script_info[1]:
+                    sim_map[script1] = 0.0
+
+                for node2 in nodes:
+                    # right now this will only compare if we even have something to compare to
+                    if node1 != node2:
+                        node2_script_info = scripts_for_site.get(node2)
+
+                        if node2_script_info != None and node2_script_info[0] > 0:
+                            # both nodes see some number of scripts for this site
+
+                            # compute the similarity ratio between each script in node1's list and node2's list
+                            for script1 in sim_map:
+                                for script2 in node2_script_info[1]:
+                                    s = SequenceMatcher(None, script1, script2, autojunk=False)
+                                    sim_map[script1] = s.quick_ratio()
+                
+            
+            # now that we've compared all of node1's scripts to all of node2's scripts
+            # add the ones that have a similarity measure less than 0.6 to our mapping of unique scripts
+            # even if there is only one other site with a close match for a script, it's not considered unique
+            unique_scripts_for_site[node1_code] = []
+            for script1 in sim_map:
+                if sim_map[script1] < 0.6:
+                    unique_scripts_for_site[node1_code].append(script1)
+
+            # if a node doesn't have any unique scripts, remove it from the dict
+            if len(unique_scripts_for_site[node1_code]) == 0:
+                del unique_scripts_for_site[node1_code]
+
+        unique_scripts[site] = tabulate(unique_scripts_for_site, headers="keys")
+    return unique_scripts
 
 def usage():
-     print("Usage: python script_diffs.py <data: c or s> <run_name> <crawl_id> <trial_id> <output filename> <num_sites>")
+     print("Usage: python script_diffs.py <data: c or u> <run_name> <crawl_id> <trial_id> <output filename> <num_sites>")
      exit()
 
 ''' Here's where the main script starts '''
@@ -205,8 +224,8 @@ if len(sys.argv) < 7:
 
 data_to_report = sys.argv[1]
 
-if not (data_to_report == "c" or data_to_report == "s"):
-    print("Must indicate data to report: either \"c\" for the script count diff or \"s\" for the script diff")
+if not (data_to_report == "c" or data_to_report == "u"):
+    print("Must indicate data to report: either \"c\" for the script count diff or \"u\" for unique scripts")
     usage()
 
 run_name = sys.argv[2]
@@ -215,20 +234,20 @@ trial_id = sys.argv[4]
 outfile = sys.argv[5]
 sites = get_sites(sys.argv[6])
 nodes = get_nodes()
-scripts = read_bodies_for_crawl(sites, nodes, run_name, crawl_id, trial_id)
+scripts_all_sites_all_nodes = read_bodies_for_crawl(sites, nodes, run_name, crawl_id, trial_id)
 
 out = open("/n/fs/multisurf/"+outfile, 'w+')
 
 if data_to_report == "c":
-    script_nums = organize_num_scripts(scripts, nodes)
+    script_nums = organize_num_scripts(scripts_all_sites_all_nodes, nodes)
     script_nums_clean = remove_all_same_script_nums(script_nums, len(sites), nodes)
     # print pretty table
     out.write(tabulate(script_nums_clean, headers="keys"))
     out.write("\n")
-elif data_to_report == "s":
-    script_diffs = compare_scripts(scripts)
+elif data_to_report == "u":
+    unique_scripts = get_unique_scripts(scripts_all_sites_all_nodes, nodes)
     # print pretty JSON
-    json.dump(script_diffs, out, sort_keys=True, indent=4, separators=(",", ":"))
+    json.dump(unique_scripts, out, indent=4, separators=(",", ":"))
     out.write("\n")
 
 out.close()
