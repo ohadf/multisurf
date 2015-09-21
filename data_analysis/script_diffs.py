@@ -5,7 +5,8 @@ import os.path
 import csv
 import json
 import bs4
-from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup, UnicodeDammit
+from bs4.diagnose import diagnose
 import base64
 from difflib import SequenceMatcher
 from tabulate import tabulate
@@ -77,8 +78,9 @@ def read_bodies_for_crawl (sites, nodes, run, crawl_id, trial_id):
                 f = open("/n/fs/multisurf/"+run+"/"+fname)
                 body = base64.b64decode(f.read())
                 f.close()
+
                 # and scrape all of the scripts
-                soup = BeautifulSoup(body, "html.parser")
+                soup = BeautifulSoup(body, "lxml")
                 node_script_list = extract_script_strs(soup.find_all('script'))
                 scripts_for_site[node] = len(node_script_list), node_script_list
         scripts_all_sites_all_nodes[site] = scripts_for_site
@@ -191,12 +193,19 @@ def get_unique_scripts (scripts_all_sites_all_nodes, nodes):
                         if node2_script_info != None and node2_script_info[0] > 0:
                             # both nodes see some number of scripts for this site
 
-                            # compute the similarity ratio between each script in node1's list and node2's list
+                            # compute the similarity ratio between each script in node1's 
+                            # list and node2's list
                             for script1 in sim_map:
                                 for script2 in node2_script_info[1]:
                                     s = SequenceMatcher(None, script1, script2, autojunk=False)
-                                    sim_map[script1] = s.quick_ratio()
-                
+                                    sim = s.quick_ratio()
+                                    # only update the similarity ratio for this script if we found
+                                    # a similarity greater than the one we already recorded
+                                    # this way we guarantee that if there is a similar script, it will
+                                    # be discarded at the end
+                                    if sim > sim_map[script1]:
+                                        sim_map[script1] = sim
+                                    
             
             # now that we've compared all of node1's scripts to all of node2's scripts
             # add the ones that have a similarity measure less than 0.6 to our mapping of unique scripts
@@ -210,7 +219,7 @@ def get_unique_scripts (scripts_all_sites_all_nodes, nodes):
             if len(unique_scripts_for_site[node1_code]) == 0:
                 del unique_scripts_for_site[node1_code]
 
-        unique_scripts[site] = tabulate(unique_scripts_for_site, headers="keys")
+        unique_scripts[site] = unique_scripts_for_site
     return unique_scripts
 
 def usage():
